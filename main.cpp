@@ -113,7 +113,7 @@ int main()
                         soundCollsion.play();
         }
         // check if all balls stationary
-        isEquilibrium = std::all_of(balls.begin(), balls.end(), [](Ball &ball)
+        isEquilibrium = std::all_of(balls.begin(), balls.end(), [](const Ball &ball)
                                     { return ball.getVelocity() == sf::Vector2f(0.0f, 0.0f); });
 
         // DISPLAY
