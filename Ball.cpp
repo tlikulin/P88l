@@ -1,7 +1,6 @@
 #include "Ball.hpp"
 #include <cmath>
 #include <algorithm>
-#include <iostream>
 
 Ball::Ball(float radius, sf::Color color, sf::Vector2f position, sf::Vector2f velocity, BallType type)
     : m_velocity(velocity), m_type(type)
@@ -12,7 +11,7 @@ Ball::Ball(float radius, sf::Color color, sf::Vector2f position, sf::Vector2f ve
     m_body.setOrigin(radius, radius);
 }
 
-void Ball::draw(sf::RenderWindow& window)
+void Ball::draw(sf::RenderWindow& window) const
 {
     window.draw(m_body);
 }

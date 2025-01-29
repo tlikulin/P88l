@@ -15,7 +15,7 @@ public:
 public:
     Ball(float radius, sf::Color color, sf::Vector2f position, sf::Vector2f velocity = sf::Vector2f(0.0f, 0.0f), BallType type = BallType::Default);
 
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);
 
     bool checkCollisionWithBall(Ball& other);
