@@ -4,7 +4,11 @@
 int main()
 {
     Game game;
-    game.loadResources();
+    if (!game.loadResources())
+    {
+        std::cout << "Could not load required resources" << std::endl;
+        return 1;
+    }
 
     while (game.isRunning())
         game.gameLoop();

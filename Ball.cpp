@@ -2,8 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
-Ball::Ball(float radius, sf::Color color, sf::Vector2f position, sf::Vector2f velocity, BallType type)
-    : m_velocity(velocity), m_type(type)
+Ball::Ball(float radius, sf::Color color, sf::Vector2f position, BallType type)
+    : m_type(type)
 {
     m_body.setRadius(radius);
     m_body.setFillColor(color);
@@ -80,6 +80,8 @@ bool Ball::checkCollisionWithBall(Ball& other)
         (u1_proj.x <= 0.0f && u2_proj.x < 0.0f && std::abs(u1_proj.x) < std::abs(u2_proj.x)))
     {
         std::swap(u1_proj.x, u2_proj.x);
+        u1_proj.x *= Specs::REBOUND_COEF;
+        u2_proj.x *= Specs::REBOUND_COEF;
 
         // from projections back to normal velocities (rotates back)
         m_velocity = sf::Vector2f(u1_proj.x*cosf(angle) - u1_proj.y*sinf(angle), u1_proj.x*sinf(angle) + u1_proj.y*cosf(angle));
@@ -94,17 +96,17 @@ bool Ball::checkCollisionWithBall(Ball& other)
 bool Ball::checkCollisionWithBorder()
 {
     //collides with the bottom or top border
-    if ((getPosition().y + getRadius() > Specs::TABLE_TOP + Specs::TABLE_HEIGHT && getVelocity().y > 0)
+    if ((getPosition().y + getRadius() > Specs::TABLE_BOTTOM && getVelocity().y > 0)
         || (getPosition().y - getRadius() < Specs::TABLE_TOP && getVelocity().y < 0))
     {
-        scaleVelocity(Specs::BORDER_REBOUND_COEF, -Specs::BORDER_REBOUND_COEF);
+        scaleVelocity(Specs::REBOUND_COEF, -Specs::REBOUND_COEF);
         return true;
     }
     //collides with the right or left border
-    if ((getPosition().x + getRadius() > Specs::TABLE_LEFT + Specs::TABLE_WIDTH && getVelocity().x > 0)
+    if ((getPosition().x + getRadius() > Specs::TABLE_RIGHT && getVelocity().x > 0)
         || (getPosition().x - getRadius() < Specs::TABLE_LEFT && getVelocity().x < 0))
     {
-        scaleVelocity(-Specs::BORDER_REBOUND_COEF, Specs::BORDER_REBOUND_COEF);
+        scaleVelocity(-Specs::REBOUND_COEF, Specs::REBOUND_COEF);
         return true;
     }
 
@@ -115,4 +117,8 @@ bool Ball::checkCollisionWithBorder()
 bool Ball::isWithinBall(float x, float y)
 {
     return std::hypot(x - getPosition().x, y - getPosition().y) <= getRadius();
+}
+bool Ball::isWithinBall(const sf::Vector2f& pos)
+{
+    return std::hypot(pos.x - getPosition().x, pos.y - getPosition().y) <= getRadius();
 }

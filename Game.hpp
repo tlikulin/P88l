@@ -14,6 +14,8 @@ public:
     void gameLoop();
 private:
     void handleEvent(const sf::Event& event);
+    void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
+    void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
     void update();
     void draw();
 private:
@@ -29,8 +31,7 @@ private:
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;
     // states
-    sf::Vector2f m_chargeStart;
     bool m_isCharging = false;
     bool m_isEquilibrium = false;
-    int m_cueIndex = 0;
+    const int m_cueIndex = 0;
 };
