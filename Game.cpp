@@ -5,7 +5,7 @@ Game::Game() :
     m_table(sf::Vector2f(Specs::TABLE_WIDTH, Specs::TABLE_HEIGHT))
 {
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 4;
+    settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Specs::SCREEN_WIDTH, Specs::SCREEN_HEIGHT), Specs::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(144);
 
