@@ -18,8 +18,8 @@ namespace Specs
     constexpr float TABLE_RIGHT = TABLE_LEFT + TABLE_WIDTH;
     const sf::Color TABLE_COLOUR(34, 139, 34);
     //Balls
-    constexpr float BALL_RADIUS = 25.0f;
-    constexpr float REBOUND_COEF = 0.97f;
+    constexpr float BALL_RADIUS = 20.0f;
+    constexpr float REBOUND_COEF = 0.95f;
     constexpr float MAX_CHARGE_VELOCITY = 2500.0f;
     constexpr float FRICTION_COEF = 120.0f;
     constexpr float SPEED_FRICTION_COEF = 600.0f;

@@ -1,6 +1,5 @@
 #include "Game.hpp"
 #include <cmath>
-#include <algorithm>
 
 Game::Game() :
     m_table(sf::Vector2f(Specs::TABLE_WIDTH, Specs::TABLE_HEIGHT))
@@ -8,6 +7,7 @@ Game::Game() :
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
     m_window.create(sf::VideoMode(Specs::SCREEN_WIDTH, Specs::SCREEN_HEIGHT), Specs::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
+    m_window.setFramerateLimit(144);
 
     m_table.setPosition(Specs::TABLE_LEFT, Specs::TABLE_TOP);
     m_table.setFillColor(Specs::TABLE_COLOUR);
@@ -113,11 +113,18 @@ void Game::update()
                         m_soundCollision.play();
     }
 
-    m_isEquilibrium = std::all_of(m_balls.begin(), m_balls.end(), [](const Ball &ball)
-                                    { return ball.getVelocity() == sf::Vector2f(0.0f, 0.0f); }); // TODO
+    m_isEquilibrium = checkEquilibrium();
 
     if (m_isCharging)
         m_trajectory.update(m_balls[m_cueIndex].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
+}
+
+bool Game::checkEquilibrium()
+{
+    for (const Ball& ball : m_balls)
+        if (ball.getVelocity() != sf::Vector2f(0.0f, 0.0f))
+            return false;
+    return true;
 }
 
 void Game::draw()

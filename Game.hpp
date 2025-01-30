@@ -17,6 +17,7 @@ private:
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
     void update();
+    bool checkEquilibrium();
     void draw();
 private:
     // game objects

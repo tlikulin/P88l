@@ -1,6 +1,5 @@
 #include "Ball.hpp"
 #include <cmath>
-#include <algorithm>
 
 Ball::Ball(float radius, sf::Color color, sf::Vector2f position, BallType type)
     : m_type(type)
@@ -66,26 +65,26 @@ bool Ball::checkCollisionWithBall(Ball& other)
 
     sf::Vector2f otherVelocity = other.getVelocity();
 
-    vec1to2 /= hypotf(vec1to2.x, vec1to2.y); //now unit vector
+    vec1to2 /= std::hypot(vec1to2.x, vec1to2.y); //now unit vector
 
-    float angle = vec1to2.y > 0 ? acosf(vec1to2.x) : -acosf(vec1to2.x);
+    float angle = vec1to2.y > 0 ? std::acos(vec1to2.x) : -std::acos(vec1to2.x);
 
     // finds projections of the velocities onto the the line connecting the centres (rotates by 'angle')
-    sf::Vector2f u1_proj = sf::Vector2f(m_velocity.x*cosf(-angle) - m_velocity.y*sinf(-angle), m_velocity.x*sinf(-angle) + m_velocity.y*cosf(-angle));
-    sf::Vector2f u2_proj = sf::Vector2f(otherVelocity.x*cosf(-angle) - otherVelocity.y*sinf(-angle), otherVelocity.x*sinf(-angle) + otherVelocity.y*cosf(-angle));
+    sf::Vector2f u1_proj = sf::Vector2f(m_velocity.x*std::cos(-angle) - m_velocity.y*std::sin(-angle), m_velocity.x*std::sin(-angle) + m_velocity.y*std::cos(-angle));
+    sf::Vector2f u2_proj = sf::Vector2f(otherVelocity.x*std::cos(-angle) - otherVelocity.y*std::sin(-angle), otherVelocity.x*std::sin(-angle) + otherVelocity.y*std::cos(-angle));
 
     //only changes if the 2 balls are moving towards or one catches up with the other
-    if ((u1_proj.x > 0.0f && u2_proj.x < 0.0f) || 
-        (u1_proj.x > 0.0f && u2_proj.x >= 0.0f && std::abs(u2_proj.x) < std::abs(u1_proj.x)) || 
-        (u1_proj.x <= 0.0f && u2_proj.x < 0.0f && std::abs(u1_proj.x) < std::abs(u2_proj.x)))
+    if ((u1_proj.x > 0.0f && u2_proj.x < 0.0f)
+        || (u1_proj.x > 0.0f && u2_proj.x >= 0.0f && std::abs(u2_proj.x) < std::abs(u1_proj.x))
+        || (u1_proj.x <= 0.0f && u2_proj.x < 0.0f && std::abs(u1_proj.x) < std::abs(u2_proj.x)))
     {
         std::swap(u1_proj.x, u2_proj.x);
         u1_proj.x *= Specs::REBOUND_COEF;
         u2_proj.x *= Specs::REBOUND_COEF;
 
         // from projections back to normal velocities (rotates back)
-        m_velocity = sf::Vector2f(u1_proj.x*cosf(angle) - u1_proj.y*sinf(angle), u1_proj.x*sinf(angle) + u1_proj.y*cosf(angle));
-        other.setVelocity(sf::Vector2f(u2_proj.x*cosf(angle) - u2_proj.y*sinf(angle), u2_proj.x*sinf(angle) + u2_proj.y*cosf(angle)));
+        m_velocity = sf::Vector2f(u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle));
+        other.setVelocity(sf::Vector2f(u2_proj.x*std::cos(angle) - u2_proj.y*std::sin(angle), u2_proj.x*std::sin(angle) + u2_proj.y*std::cos(angle)));
 
         return true;
     }
