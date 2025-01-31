@@ -6,9 +6,23 @@
 class Trajectory
 {
 public:
-    Trajectory();
+    enum TrajectoryMode
+    {
+        None = 0,
+        Minimum,
+        Normal,
+        Detailed,
+        All
+    }; 
+public:
+    Trajectory(TrajectoryMode mode);
     void update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePosition);
     void draw(sf::RenderWindow& window);
+    void cycleMode();
+private:
+    void updateReflection();
+    void updateExtra1();
+    void updateExtra2();
 private:
     sf::Vertex m_segment1[2];
     sf::Vertex m_segment1L[2];
@@ -19,4 +33,5 @@ private:
     sf::CircleShape m_ballPrev1;
     sf::CircleShape m_ballPrev2;
     bool m_isExtensionNeeded = false;
+    TrajectoryMode m_mode;
 };

@@ -6,12 +6,11 @@
 class Ball
 {
 public:
-    enum class BallType
+    enum BallType
     {
         Default = 0,
         Cue
     };
-
 public:
     Ball(float radius, sf::Color color, sf::Vector2f position, BallType type = BallType::Default);
 
@@ -31,7 +30,6 @@ public:
     float getRadius()           const { return m_body.getRadius(); }
     sf::Vector2f getPosition()  const { return m_body.getPosition(); }
     BallType getType()          const { return m_type; }
-
 private:
     sf::CircleShape m_body;
     sf::Vector2f m_velocity;

@@ -2,7 +2,8 @@
 #include <cmath>
 
 Game::Game() :
-    m_table(sf::Vector2f(Specs::TABLE_WIDTH, Specs::TABLE_HEIGHT))
+    m_table(sf::Vector2f(Specs::TABLE_WIDTH, Specs::TABLE_HEIGHT)),
+    m_trajectory(Trajectory::Detailed)
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -12,11 +13,11 @@ Game::Game() :
     m_table.setPosition(Specs::TABLE_LEFT, Specs::TABLE_TOP);
     m_table.setFillColor(Specs::TABLE_COLOUR);
 
-    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::BallType::Cue);
-    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Red, sf::Vector2f(600.0f, 500.0f), Ball::BallType::Default);
+    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
+    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Red, sf::Vector2f(600.0f, 500.0f), Ball::Default);
     for (int i = 0, n = 5; i < n; ++i)
     {
-        m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Yellow, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::BallType::Default);
+        m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Yellow, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::Default);
     }
 }
 
@@ -66,7 +67,9 @@ void Game::handleEvent(const sf::Event& event)
 
 void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
 {
-    if (m_isEquilibrium 
+    if (event.mouseButton.button == sf::Mouse::Right)
+        m_trajectory.cycleMode();
+    else if (m_isEquilibrium 
         && event.mouseButton.button == sf::Mouse::Left 
         && m_balls[m_cueIndex].isWithinBall(mousePos))
     {

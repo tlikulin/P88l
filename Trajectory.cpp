@@ -2,7 +2,8 @@
 #include <cmath>
 #include <utility>
 
-Trajectory::Trajectory()
+Trajectory::Trajectory(TrajectoryMode mode) :
+    m_mode(mode)
 {
     m_ballPrev1.setRadius(Specs::BALL_RADIUS);
     m_ballPrev1.setFillColor(sf::Color::Transparent);
@@ -12,13 +13,35 @@ Trajectory::Trajectory()
     m_ballPrev2 = m_ballPrev1;
 }
 
-// Calculates the 2 segments of trajectory with reflection off the wall if needed
+// Calculates the 2 segments (and co-parts) of trajectory with reflection off the wall if needed
 // Basically checks which wall the trajectory crosses, if any, and reflects in it
 void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePosition)
 {
+    if (m_mode == None)
+        return;
+
     m_segment1[0].position = chargeStart;
     m_segment1[1].position = m_segment1[0].position + 2.5f * (chargeStart - mousePosition);
 
+    updateReflection();
+
+    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
+    {   
+        m_ballPrev1.setPosition(m_segment1[1].position);
+        m_ballPrev2.setPosition(m_segment2[1].position);
+    }
+
+    if (m_mode == Detailed || m_mode == All)
+    {
+        updateExtra1();
+        if (m_isExtensionNeeded)
+            updateExtra2();
+    }
+
+}
+
+void Trajectory::updateReflection()
+{
     m_isExtensionNeeded = true;
     float gradient = (m_segment1[0].position.y - m_segment1[1].position.y) / (m_segment1[0].position.x - m_segment1[1].position.x);
 
@@ -96,10 +119,12 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
             m_isExtensionNeeded = false; 
         }
     }
-    m_segment2[0].position = m_segment1[1].position;
-    m_ballPrev1.setPosition(m_segment1[1].position);
 
-    // parallel coparts of 1st segment
+    m_segment2[0].position = m_segment1[1].position;
+}
+
+void Trajectory::updateExtra1()
+{
     sf::Vector2f shift = m_segment1[1].position - m_segment1[0].position;
     shift /= std::hypot(shift.x, shift.y);
     std::swap(shift.x, shift.y);
@@ -110,38 +135,69 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
     m_segment1L[1].position = m_segment1[1].position + shift;
     m_segment1R[0].position = m_segment1[0].position - shift;
     m_segment1R[1].position = m_segment1[1].position - shift;
+}
 
-    // parallel coparts of 2nd segment
+void Trajectory::updateExtra2()
+{
+    sf::Vector2f shift = m_segment2[1].position - m_segment2[0].position;
+    shift /= std::hypot(shift.x, shift.y);
+    std::swap(shift.x, shift.y);
+    shift.y *= -1.0f;
+    shift *= Specs::BALL_RADIUS;
+
+    m_segment2L[0].position = m_segment2[0].position + shift;
+    m_segment2L[1].position = m_segment2[1].position + shift;
+    m_segment2R[0].position = m_segment2[0].position - shift;
+    m_segment2R[1].position = m_segment2[1].position - shift;
+}
+
+void Trajectory::draw(sf::RenderWindow& window)
+{
+    if (m_mode == None)
+        return;
+    
+    if (m_mode == Minimum || m_mode == Normal || m_mode == All)
+        window.draw(m_segment1, 2, sf::Lines);
+    if (m_mode == Detailed || m_mode == All)
+    {
+        window.draw(m_segment1L, 2, sf::Lines);
+        window.draw(m_segment1R, 2, sf::Lines);
+    }
+    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
+        window.draw(m_ballPrev1);
+
     if (m_isExtensionNeeded)
     {
-        shift = m_segment2[1].position - m_segment2[0].position;
-        shift /= std::hypot(shift.x, shift.y);
-        std::swap(shift.x, shift.y);
-        shift.y *= -1.0f;
-        shift *= Specs::BALL_RADIUS;
-
-        m_segment2L[0].position = m_segment2[0].position + shift;
-        m_segment2L[1].position = m_segment2[1].position + shift;
-        m_segment2R[0].position = m_segment2[0].position - shift;
-        m_segment2R[1].position = m_segment2[1].position - shift;
-
-        m_ballPrev2.setPosition(m_segment2[1].position);
+        if (m_mode == Minimum || m_mode == Normal || m_mode == All)
+            window.draw(m_segment2, 2, sf::Lines);
+        if (m_mode == Detailed || m_mode == All)
+        {
+            window.draw(m_segment2L, 2, sf::Lines);
+            window.draw(m_segment2R, 2, sf::Lines);
+        }
+        if (m_mode == Normal || m_mode == Detailed || m_mode == All)
+            window.draw(m_ballPrev2);
     }
 }
 
-// Displays the trajectory, the second segment not always needed
-void Trajectory::draw(sf::RenderWindow& window)
+void Trajectory::cycleMode()
 {
-    //window.draw(m_segment1, 2, sf::Lines);
-    window.draw(m_segment1L, 2, sf::Lines);
-    window.draw(m_segment1R, 2, sf::Lines);
-    window.draw(m_ballPrev1);
-
-    if (m_isExtensionNeeded)
+    switch(m_mode)
     {
-        // window.draw(m_segment2, 2, sf::Lines);
-        window.draw(m_segment2L, 2, sf::Lines);
-        window.draw(m_segment2R, 2, sf::Lines);
-        window.draw(m_ballPrev2);
+    case None:
+        m_mode = Minimum;
+        break;
+    case Minimum:
+        m_mode = Normal;
+        break;
+    case Normal:
+        m_mode = Detailed;
+        break;
+    case Detailed:
+        m_mode = All;
+        break;
+    default:
+        m_mode = None;
+        break;
     }
 }
