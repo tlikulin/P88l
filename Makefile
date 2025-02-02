@@ -15,6 +15,7 @@ depend:
 # DO NOT DELETE THIS LINE
 
 Ball.o: Ball.hpp Specs.hpp
-Game.o: Game.hpp Ball.hpp Specs.hpp Trajectory.hpp
-main.o: Game.hpp Ball.hpp Specs.hpp Trajectory.hpp
+Game.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp Specs.hpp
+main.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp
+Table.o: Table.hpp Specs.hpp
 Trajectory.o: Trajectory.hpp Specs.hpp

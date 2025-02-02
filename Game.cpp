@@ -3,22 +3,18 @@
 #include <cmath>
 
 Game::Game() :
-    m_table(sf::Vector2f(Specs::TABLE_WIDTH, Specs::TABLE_HEIGHT)),
-    m_trajectory(Trajectory::Detailed)
+    m_trajectory{Trajectory::Detailed}
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Specs::SCREEN_WIDTH, Specs::SCREEN_HEIGHT), Specs::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(144);
 
-    m_table.setPosition(Specs::TABLE_LEFT, Specs::TABLE_TOP);
-    m_table.setFillColor(Specs::TABLE_COLOUR);
-
     m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
-    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Red, sf::Vector2f(600.0f, 500.0f), Ball::Default);
+    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Default);
     for (int i = 0, n = 5; i < n; ++i)
     {
-        m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::Yellow, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::Default);
+        m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::Default);
     }
 }
 
@@ -134,7 +130,7 @@ bool Game::checkEquilibrium()
 void Game::draw()
 {
     m_window.clear(Specs::BG_COLOUR);
-    m_window.draw(m_table);
+    m_table.draw(m_window);
     for (const Ball& ball : m_balls)
         ball.draw(m_window);
     if (m_isCharging)

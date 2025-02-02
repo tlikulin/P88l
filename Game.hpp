@@ -3,6 +3,7 @@
 #include <vector>
 #include "Ball.hpp"
 #include "Trajectory.hpp"
+#include "Table.hpp"
 
 class Game
 {
@@ -21,7 +22,7 @@ private:
 private:
     // game objects
     sf::RenderWindow m_window;
-    sf::RectangleShape m_table;
+    Table m_table;
     std::vector<Ball> m_balls;
     Trajectory m_trajectory;
     // resources
