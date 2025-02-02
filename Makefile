@@ -1,7 +1,7 @@
 CXXFLAGS=-Wall -Wextra -pedantic
 SFML-LIB=-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
-SRCS=$(wildcard *.cpp)
-OBJS=$(patsubst %.cpp,%.o,$(SRCS))
+SRCS=$(wildcard src/*.cpp)
+OBJS=$(patsubst src/%.cpp,src/%.o,$(SRCS))
 
 .PHONY: clean depend
 
@@ -9,14 +9,16 @@ P88l: $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(SFML-LIB)
 
 clean:
-	rm P88l *.o
+	rm P88l src/*.o
 depend:
 	makedepend  $(SRCS) -Y
 # DO NOT DELETE THIS LINE
 
-Ball.o: Ball.hpp Specs.hpp
-FPSCounter.o: FPSCounter.hpp
-Game.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp FPSCounter.hpp Specs.hpp
-main.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp FPSCounter.hpp
-Table.o: Table.hpp Specs.hpp
-Trajectory.o: Trajectory.hpp Specs.hpp
+src/Ball.o: src/Ball.hpp src/Specs.hpp
+src/FPSCounter.o: src/FPSCounter.hpp
+src/Game.o: src/Game.hpp src/Ball.hpp src/Trajectory.hpp src/Table.hpp
+src/Game.o: src/FPSCounter.hpp src/Specs.hpp
+src/main.o: src/Game.hpp src/Ball.hpp src/Trajectory.hpp src/Table.hpp
+src/main.o: src/FPSCounter.hpp
+src/Table.o: src/Table.hpp src/Specs.hpp
+src/Trajectory.o: src/Trajectory.hpp src/Specs.hpp
