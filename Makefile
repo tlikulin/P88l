@@ -15,7 +15,8 @@ depend:
 # DO NOT DELETE THIS LINE
 
 Ball.o: Ball.hpp Specs.hpp
-Game.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp Specs.hpp
-main.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp
+FPSCounter.o: FPSCounter.hpp
+Game.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp FPSCounter.hpp Specs.hpp
+main.o: Game.hpp Ball.hpp Trajectory.hpp Table.hpp FPSCounter.hpp
 Table.o: Table.hpp Specs.hpp
 Trajectory.o: Trajectory.hpp Specs.hpp

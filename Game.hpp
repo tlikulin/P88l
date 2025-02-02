@@ -4,6 +4,7 @@
 #include "Ball.hpp"
 #include "Trajectory.hpp"
 #include "Table.hpp"
+#include "FPSCounter.hpp"
 
 class Game
 {
@@ -28,6 +29,7 @@ private:
     // resources
     sf::SoundBuffer m_bufferCollision;
     sf::Sound m_soundCollision;
+    sf::Font m_font;
     // time
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;
@@ -35,4 +37,6 @@ private:
     bool m_isCharging = false;
     bool m_isEquilibrium = false;
     const int m_cueIndex = 0;
+    // UI
+    FPSCounter m_fpsCounter;
 };

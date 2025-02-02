@@ -1,6 +1,8 @@
 #include "Game.hpp"
 #include "Specs.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <cmath>
+#include <string>
 
 Game::Game() :
     m_trajectory{Trajectory::Detailed}
@@ -12,7 +14,7 @@ Game::Game() :
 
     m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
     m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Default);
-    for (int i = 0, n = 5; i < n; ++i)
+    for (int i = 0, n = 5; i < n; i++)
     {
         m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::Default);
     }
@@ -20,7 +22,10 @@ Game::Game() :
 
 bool Game::loadResources()
 {
-    if (!m_bufferCollision.loadFromFile("ball_collision.wav"))
+    if (!m_font.loadFromFile("media/fonts/MesloLGS NF Regular.ttf"))
+        return false;
+    m_fpsCounter.setFont(m_font);
+    if (!m_bufferCollision.loadFromFile("media/audio/ball_collision.wav"))
         return false;
     m_soundCollision.setBuffer(m_bufferCollision);
 
@@ -117,6 +122,8 @@ void Game::update()
 
     if (m_isCharging)
         m_trajectory.update(m_balls[m_cueIndex].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
+
+    m_fpsCounter.update(m_deltaTime);
 }
 
 bool Game::checkEquilibrium()
@@ -135,5 +142,6 @@ void Game::draw()
         ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
+    m_fpsCounter.draw(m_window);
     m_window.display();
 }
