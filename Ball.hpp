@@ -1,12 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Specs.hpp"
 
 class Ball
 {
 public:
-    enum BallType
+    enum BallType : std::uint8_t
     {
         Default = 0,
         Cue

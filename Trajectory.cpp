@@ -1,4 +1,5 @@
 #include "Trajectory.hpp"
+#include "Specs.hpp"
 #include <cmath>
 #include <utility>
 

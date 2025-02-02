@@ -6,7 +6,7 @@ int main()
     Game game;
     if (!game.loadResources())
     {
-        std::cout << "Could not load required resources" << std::endl;
+        std::cout << "Could not load required resources\n";
         return 1;
     }
 

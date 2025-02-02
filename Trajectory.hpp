@@ -1,12 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Specs.hpp"
 
 class Trajectory
 {
 public:
-    enum TrajectoryMode
+    enum TrajectoryMode : std::uint8_t
     {
         None = 0,
         Minimum,

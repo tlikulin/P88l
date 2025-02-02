@@ -3,7 +3,6 @@
 #include <vector>
 #include "Ball.hpp"
 #include "Trajectory.hpp"
-#include "Specs.hpp"
 
 class Game
 {
@@ -28,7 +27,7 @@ private:
     // resources
     sf::SoundBuffer m_bufferCollision;
     sf::Sound m_soundCollision;
-    // time keeping
+    // time
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;
     // states

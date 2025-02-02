@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Specs.hpp"
 #include <cmath>
 
 Game::Game() :
