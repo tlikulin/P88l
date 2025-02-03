@@ -9,4 +9,6 @@ public:
 private:
     sf::RectangleShape m_cloth;
     std::array<sf::ConvexShape, 4> m_rails;
+    sf::RectangleShape m_contour;
+    sf::RectangleShape m_outerContour;
 };

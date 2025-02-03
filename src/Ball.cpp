@@ -1,5 +1,5 @@
 #include "Ball.hpp"
-#include "Specs.hpp"
+#include "Spec.hpp"
 #include <cmath>
 #include <utility>
 
@@ -23,7 +23,7 @@ void Ball::update(float deltaTime)
 {
     float magnitude = std::hypot(m_velocity.x, m_velocity.y);
 
-    if (magnitude < Specs::FRICTION_COEF * deltaTime)
+    if (magnitude < Spec::FRICTION_COEF * deltaTime)
     {
         m_velocity.x = 0;
         m_velocity.y = 0;
@@ -31,7 +31,7 @@ void Ball::update(float deltaTime)
     else
     {
         float angle = std::abs(std::atan(m_velocity.y / m_velocity.x));
-        float coef = Specs::FRICTION_COEF * (1 + std::pow(magnitude / Specs::SPEED_FRICTION_COEF, 3.0f));
+        float coef = Spec::FRICTION_COEF * (1 + std::pow(magnitude / Spec::SPEED_FRICTION_COEF, 3.0f));
 
         if (m_velocity.x > 0)
             m_velocity.x -=  coef * std::cos(angle) * deltaTime;
@@ -60,7 +60,7 @@ bool Ball::checkCollisionWithBall(Ball& other)
 {
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
 
-    if (std::hypot(vec1to2.x, vec1to2.y) >= 2 * Specs::BALL_RADIUS)
+    if (std::hypot(vec1to2.x, vec1to2.y) >= 2 * Spec::BALL_RADIUS)
     {
         return false;
     }
@@ -81,8 +81,8 @@ bool Ball::checkCollisionWithBall(Ball& other)
         || (u1_proj.x <= 0.0f && u2_proj.x < 0.0f && std::abs(u1_proj.x) < std::abs(u2_proj.x)))
     {
         std::swap(u1_proj.x, u2_proj.x);
-        u1_proj.x *= Specs::REBOUND_COEF;
-        u2_proj.x *= Specs::REBOUND_COEF;
+        u1_proj.x *= Spec::REBOUND_COEF;
+        u2_proj.x *= Spec::REBOUND_COEF;
 
         // from projections back to normal velocities (rotates back)
         m_velocity = sf::Vector2f(u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle));
@@ -97,17 +97,17 @@ bool Ball::checkCollisionWithBall(Ball& other)
 bool Ball::checkCollisionWithBorder()
 {
     //collides with the bottom or top border
-    if ((getPosition().y + getRadius() > Specs::TABLE_BOTTOM && getVelocity().y > 0)
-        || (getPosition().y - getRadius() < Specs::TABLE_TOP && getVelocity().y < 0))
+    if ((getPosition().y + getRadius() > Spec::TABLE_BOTTOM && getVelocity().y > 0)
+        || (getPosition().y - getRadius() < Spec::TABLE_TOP && getVelocity().y < 0))
     {
-        scaleVelocity(Specs::REBOUND_COEF, -Specs::REBOUND_COEF);
+        scaleVelocity(Spec::REBOUND_COEF, -Spec::REBOUND_COEF);
         return true;
     }
     //collides with the right or left border
-    if ((getPosition().x + getRadius() > Specs::TABLE_RIGHT && getVelocity().x > 0)
-        || (getPosition().x - getRadius() < Specs::TABLE_LEFT && getVelocity().x < 0))
+    if ((getPosition().x + getRadius() > Spec::TABLE_RIGHT && getVelocity().x > 0)
+        || (getPosition().x - getRadius() < Spec::TABLE_LEFT && getVelocity().x < 0))
     {
-        scaleVelocity(-Specs::REBOUND_COEF, Specs::REBOUND_COEF);
+        scaleVelocity(-Spec::REBOUND_COEF, Spec::REBOUND_COEF);
         return true;
     }
 

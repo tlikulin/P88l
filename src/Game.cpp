@@ -1,5 +1,5 @@
 #include "Game.hpp"
-#include "Specs.hpp"
+#include "Spec.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <cmath>
@@ -10,14 +10,14 @@ Game::Game() :
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    m_window.create(sf::VideoMode(Specs::SCREEN_WIDTH, Specs::SCREEN_HEIGHT), Specs::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
+    m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(144);
 
-    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
-    m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Default);
+    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
+    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Default);
     for (int i = 0, n = 5; i < n; i++)
     {
-        m_balls.emplace_back(Specs::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Specs::TABLE_WIDTH / n, 400.0f), Ball::Default);
+        m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Spec::TABLE_WIDTH / n, 400.0f), Ball::Default);
     }
 }
 
@@ -78,7 +78,7 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
         && m_balls[m_cueIndex].isWithinBall(mousePos))
     {
         m_isCharging = true;
-        m_window.setTitle(Specs::TITLE_CHARGING);
+        m_window.setTitle(Spec::TITLE_CHARGING);
     }
 }
 
@@ -90,16 +90,16 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
         {
             sf::Vector2f chargeVelocity = m_balls[m_cueIndex].getPosition() - mousePos;
             chargeVelocity *= 3.5f;
-            if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Specs::MAX_CHARGE_VELOCITY)
+            if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Spec::MAX_CHARGE_VELOCITY)
             {
-                chargeVelocity *= Specs::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
+                chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
             }
             m_balls[m_cueIndex].setVelocity(chargeVelocity);
             m_soundCollision.play();
         }
 
         m_isCharging = false;
-        m_window.setTitle(Specs::TITLE);
+        m_window.setTitle(Spec::TITLE);
     }
 }
 
@@ -150,8 +150,9 @@ bool Game::checkEquilibrium()
 
 void Game::draw()
 {
-    m_window.clear(Specs::BG_COLOUR);
+    m_window.clear(Spec::BG_COLOUR);
     m_table.draw(m_window);
+    m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)
         ball.draw(m_window);
     if (m_isCharging)

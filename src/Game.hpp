@@ -4,6 +4,7 @@
 #include "Ball.hpp"
 #include "Trajectory.hpp"
 #include "Table.hpp"
+#include "Pockets.hpp"
 #include "FPSCounter.hpp"
 
 class Game
@@ -25,6 +26,7 @@ private:
     // game objects
     sf::RenderWindow m_window;
     Table m_table;
+    Pockets m_pockets;
     std::vector<Ball> m_balls;
     Trajectory m_trajectory;
     // UI
