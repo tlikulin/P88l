@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "Specs.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
 #include <string>
 
@@ -62,6 +63,9 @@ void Game::handleEvent(const sf::Event& event)
     case sf::Event::MouseButtonReleased:
         handleMouseButtonReleased(event, sf::Vector2f(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
         break;
+    case sf::Event::KeyPressed:
+        handleKeyPressed(event);
+        break;
     default:
         break;
     }
@@ -69,9 +73,7 @@ void Game::handleEvent(const sf::Event& event)
 
 void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
 {
-    if (event.mouseButton.button == sf::Mouse::Right)
-        m_trajectory.cycleMode();
-    else if (m_isEquilibrium 
+    if (m_isEquilibrium 
         && event.mouseButton.button == sf::Mouse::Left 
         && m_balls[m_cueIndex].isWithinBall(mousePos))
     {
@@ -98,6 +100,18 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
 
         m_isCharging = false;
         m_window.setTitle(Specs::TITLE);
+    }
+}
+
+void Game::handleKeyPressed(const sf::Event& event)
+{
+    if (event.key.code == sf::Keyboard::P)
+    {
+        m_trajectory.cycleMode();
+    }
+    else if (event.key.code == sf::Keyboard::Tilde)
+    {
+        m_isFpsShown = !m_isFpsShown;
     }
 }
 
@@ -142,6 +156,7 @@ void Game::draw()
         ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
-    m_fpsCounter.draw(m_window);
+    if (m_isFpsShown)
+        m_fpsCounter.draw(m_window);
     m_window.display();
 }
