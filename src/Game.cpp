@@ -1,13 +1,16 @@
 #include "Game.hpp"
 #include "Spec.hpp"
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
-#include <string>
 
-Game::Game() :
-    m_trajectory{Trajectory::Detailed}
+Game::Game(const char* path) :
+    m_trajectory{Trajectory::Detailed},
+    m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()}
 {
+    m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
+    m_fpsCounter.setFont(m_font);
+    m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
+    m_soundCollision.setBuffer(m_bufferCollision);
+
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
@@ -19,18 +22,6 @@ Game::Game() :
     {
         m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Spec::TABLE_WIDTH / n, 400.0f), Ball::Default);
     }
-}
-
-bool Game::loadResources()
-{
-    if (!m_font.loadFromFile("media/fonts/MesloLGS NF Regular.ttf"))
-        return false;
-    m_fpsCounter.setFont(m_font);
-    if (!m_bufferCollision.loadFromFile("media/audio/ball_collision.wav"))
-        return false;
-    m_soundCollision.setBuffer(m_bufferCollision);
-
-    return true;
 }
 
 bool Game::isRunning()

@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <vector>
+#include <filesystem>
 #include "Ball.hpp"
 #include "Trajectory.hpp"
 #include "Table.hpp"
@@ -10,8 +11,7 @@
 class Game
 {
 public:
-    Game();
-    bool loadResources();
+    Game(const char* path);
     bool isRunning();
     void gameLoop();
 private:
@@ -33,6 +33,7 @@ private:
     FPSCounter m_fpsCounter;
     bool m_isFpsShown = true;
     // resources
+    std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCollision;
     sf::Sound m_soundCollision;
     sf::Font m_font;

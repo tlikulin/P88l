@@ -1,14 +1,8 @@
 #include "Game.hpp"
-#include <iostream>
 
-int main()
+int main(int  /*argc*/, char** argv)
 {
-    Game game;
-    if (!game.loadResources())
-    {
-        std::cout << "Could not load required resources\n";
-        return 1;
-    }
+    Game game{argv[0]};
 
     while (game.isRunning())
         game.gameLoop();

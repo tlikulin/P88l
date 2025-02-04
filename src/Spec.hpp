@@ -37,4 +37,7 @@ namespace Spec
     const sf::Color BG_COLOUR{200, 200, 200};
     const sf::Color TABLE_COLOUR{0x62a66fff};
     const sf::Color TABLE_RAIL_COLOUR{0x7b4336ff};
+    //Reltive paths
+    constexpr const char* PATH_TO_COLLISION_SOUND = "media/audio/ball_collision.wav";
+    constexpr const char* PATH_TO_FONT = "media/fonts/MesloLGS NF Regular.ttf";
 }
