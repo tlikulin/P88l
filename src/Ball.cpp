@@ -58,6 +58,9 @@ void Ball::scaleVelocity(float xScale, float yScale)
 // (oblique collision of 2 smooth balls)
 bool Ball::checkCollisionWithBall(Ball& other)
 {
+    if (m_type == Potted || other.getType() == Potted)
+        return false;
+
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
 
     if (std::hypot(vec1to2.x, vec1to2.y) >= 2 * Spec::BALL_RADIUS)
@@ -97,15 +100,15 @@ bool Ball::checkCollisionWithBall(Ball& other)
 bool Ball::checkCollisionWithBorder()
 {
     //collides with the bottom or top border
-    if ((getPosition().y + getRadius() > Spec::TABLE_BOTTOM && getVelocity().y > 0)
-        || (getPosition().y - getRadius() < Spec::TABLE_TOP && getVelocity().y < 0))
+    if ((getPosition().y + Spec::BALL_RADIUS > Spec::TABLE_BOTTOM && getVelocity().y > 0)
+        || (getPosition().y - Spec::BALL_RADIUS < Spec::TABLE_TOP && getVelocity().y < 0))
     {
         scaleVelocity(Spec::REBOUND_COEF, -Spec::REBOUND_COEF);
         return true;
     }
     //collides with the right or left border
-    if ((getPosition().x + getRadius() > Spec::TABLE_RIGHT && getVelocity().x > 0)
-        || (getPosition().x - getRadius() < Spec::TABLE_LEFT && getVelocity().x < 0))
+    if ((getPosition().x + Spec::BALL_RADIUS > Spec::TABLE_RIGHT && getVelocity().x > 0)
+        || (getPosition().x - Spec::BALL_RADIUS < Spec::TABLE_LEFT && getVelocity().x < 0))
     {
         scaleVelocity(-Spec::REBOUND_COEF, Spec::REBOUND_COEF);
         return true;
@@ -117,9 +120,14 @@ bool Ball::checkCollisionWithBorder()
 // is the point with given coordinates within the ball
 bool Ball::isWithinBall(float x, float y)
 {
-    return std::hypot(x - getPosition().x, y - getPosition().y) <= getRadius();
+    return std::hypot(x - getPosition().x, y - getPosition().y) <= Spec::BALL_RADIUS;
 }
 bool Ball::isWithinBall(const sf::Vector2f& pos)
 {
-    return std::hypot(pos.x - getPosition().x, pos.y - getPosition().y) <= getRadius();
+    return std::hypot(pos.x - getPosition().x, pos.y - getPosition().y) <= Spec::BALL_RADIUS;
+}
+
+void Ball::pot()
+{
+    m_type = Potted;
 }

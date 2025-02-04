@@ -36,6 +36,8 @@ private:
     std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCollision;
     sf::Sound m_soundCollision;
+    sf::SoundBuffer m_bufferPotting;
+    sf::Sound m_soundPotting;
     sf::Font m_font;
     // time
     sf::Clock m_clock;

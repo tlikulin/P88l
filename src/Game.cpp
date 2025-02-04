@@ -10,6 +10,8 @@ Game::Game(const char* path) :
     m_fpsCounter.setFont(m_font);
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
     m_soundCollision.setBuffer(m_bufferCollision);
+    m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
+    m_soundPotting.setBuffer(m_bufferPotting);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -17,10 +19,10 @@ Game::Game(const char* path) :
     m_window.setFramerateLimit(144);
 
     m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
-    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Default);
+    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Player1);
     for (int i = 0, n = 5; i < n; i++)
     {
-        m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Spec::TABLE_WIDTH / n, 400.0f), Ball::Default);
+        m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Spec::TABLE_WIDTH / n, 400.0f), Ball::Player1);
     }
 }
 
@@ -112,15 +114,24 @@ void Game::update()
     {
         for (Ball& ball : m_balls)
         {
-            ball.update(m_deltaTime);
-            if (ball.checkCollisionWithBorder())
-                m_soundCollision.play();
+            if (ball.getType() != Ball::Potted)
+            {
+                ball.update(m_deltaTime);
+                if (m_pockets.isBallPotted(ball))
+                    m_soundPotting.play();
+                else if (ball.checkCollisionWithBorder())
+                    m_soundCollision.play();
+            }
         }
 
         for (int i = 0, n = m_balls.size(); i < n; ++i)
-                for (int j = i + 1; j < n; ++j)
-                    if (m_balls[i].checkCollisionWithBall(m_balls[j]))
-                        m_soundCollision.play();
+        {
+            for (int j = i + 1; j < n; ++j)
+            {
+                if (m_balls[i].checkCollisionWithBall(m_balls[j]))
+                    m_soundCollision.play();
+            }
+        }
     }
 
     m_isEquilibrium = checkEquilibrium();
@@ -134,7 +145,8 @@ void Game::update()
 bool Game::checkEquilibrium()
 {
     for (const Ball& ball : m_balls)
-        if (ball.getVelocity() != sf::Vector2f(0.0f, 0.0f))
+        if (ball.getType() != Ball::Potted
+            && ball.getVelocity() != sf::Vector2f(0.0f, 0.0f))
             return false;
     return true;
 }
@@ -145,7 +157,8 @@ void Game::draw()
     m_table.draw(m_window);
     m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)
-        ball.draw(m_window);
+        if (ball.getType() != Ball::Potted)
+            ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
     if (m_isFpsShown)
