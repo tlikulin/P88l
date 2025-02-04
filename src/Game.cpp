@@ -3,7 +3,7 @@
 #include <cmath>
 
 Game::Game(const char* path) :
-    m_trajectory{Trajectory::Detailed},
+    m_trajectory{Trajectory::Normal},
     m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()}
 {
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
@@ -18,11 +18,11 @@ Game::Game(const char* path) :
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(144);
 
-    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color::White, sf::Vector2f(600.0f, 300.0f), Ball::Cue);
-    m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xff0000ff}, sf::Vector2f(600.0f, 500.0f), Ball::Player1);
+    m_balls.emplace_back(sf::Vector2f{600.0f, 300.0f}, Ball::Cue);
+    m_balls.emplace_back(sf::Vector2f{600.0f, 500.0f}, Ball::Player1);
     for (int i = 0, n = 5; i < n; i++)
     {
-        m_balls.emplace_back(Spec::BALL_RADIUS, sf::Color{0xffff3cff}, sf::Vector2f((i + 1) * Spec::TABLE_WIDTH / n, 400.0f), Ball::Player1);
+        m_balls.emplace_back(sf::Vector2f{(i + 1) * Spec::TABLE_WIDTH / n, 400.0f}, Ball::Player1);
     }
 }
 

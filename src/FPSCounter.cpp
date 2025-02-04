@@ -3,10 +3,8 @@
 
 FPSCounter::FPSCounter()
 {
-    m_text.setFillColor(sf::Color{0x00ed00ff});
+    m_text.setFillColor(sf::Color::Blue);
     m_text.setCharacterSize(18);
-    m_text.setOutlineThickness(1.0f);
-    m_text.setOutlineColor(sf::Color::Black);
     m_text.setString("---");
 }
 

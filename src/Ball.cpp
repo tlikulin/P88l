@@ -3,13 +3,32 @@
 #include <cmath>
 #include <utility>
 
-Ball::Ball(float radius, sf::Color color, sf::Vector2f position, BallType type)
-    : m_type(type)
+Ball::Ball(sf::Vector2f position, BallType type) : 
+    m_type{type}
 {
-    m_body.setRadius(radius);
-    m_body.setFillColor(color);
+    m_body.setRadius(Spec::BALL_RADIUS);
+    sf::Color colour;
+    switch(type)
+    {
+    case Cue:
+        colour = sf::Color::White;
+        break;
+    case Player1:
+        colour = sf::Color::Red;
+        break;
+    case Player2:
+        colour = sf::Color::Blue;
+        break;
+    case Eightball:
+        colour = sf::Color::Black;
+        break;
+    default:
+        colour = sf::Color::Magenta;
+        break;
+    }
+    m_body.setFillColor(colour);
     m_body.setPosition(position);
-    m_body.setOrigin(radius, radius);
+    m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
 }
 
 void Ball::draw(sf::RenderWindow& window) const

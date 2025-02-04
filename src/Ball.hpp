@@ -14,7 +14,7 @@ public:
         Eightball
     };
 public:
-    Ball(float radius, sf::Color color, sf::Vector2f position, BallType type);
+    Ball(sf::Vector2f position, BallType type);
 
     void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);

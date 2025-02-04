@@ -32,7 +32,7 @@ namespace Spec
                                                              {(TABLE_LEFT+TABLE_RIGHT)/2.0f, TABLE_BOTTOM},
                                                              {TABLE_RIGHT-POCKETS_OFFSET, TABLE_TOP+POCKETS_OFFSET},
                                                              {TABLE_RIGHT-POCKETS_OFFSET, TABLE_BOTTOM-POCKETS_OFFSET} }};
-    constexpr float POCKET_RADIUS = 30.0f;
+    constexpr float POCKET_RADIUS = 27.5f;
     //Colours
     const sf::Color BG_COLOUR{200, 200, 200};
     const sf::Color TABLE_COLOUR{0x62a66fff};
