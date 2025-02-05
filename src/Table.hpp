@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <array>
 
 class Table
 {
@@ -8,7 +7,5 @@ public:
     void draw(sf::RenderWindow& window);
 private:
     sf::RectangleShape m_cloth;
-    std::array<sf::ConvexShape, 4> m_rails;
-    sf::RectangleShape m_contour;
-    sf::RectangleShape m_outerContour;
+    sf::RectangleShape m_rails;
 };
