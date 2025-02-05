@@ -1,4 +1,4 @@
-CXXFLAGS=-Wall -Wextra -pedantic
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++20
 SFML-LIB=-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 SRCS=$(wildcard src/*.cpp)
 OBJS=$(patsubst src/%.cpp,src/%.o,$(SRCS))

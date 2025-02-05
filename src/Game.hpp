@@ -12,9 +12,10 @@ class Game
 {
 public:
     Game(const char* path);
-    bool isRunning();
+    bool isRunning() { return m_window.isOpen(); }
     void gameLoop();
 private:
+    void initializeBalls();
     void handleEvent(const sf::Event& event);
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
@@ -45,5 +46,4 @@ private:
     // states
     bool m_isCharging = false;
     bool m_isEquilibrium = false;
-    const int m_cueIndex = 0;
 };

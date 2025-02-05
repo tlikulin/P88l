@@ -39,8 +39,9 @@ void Ball::draw(sf::RenderWindow& window) const
 void Ball::update(float deltaTime)
 {
     float magnitude = std::hypot(m_velocity.x, m_velocity.y);
+    float coef = Spec::FRICTION_COEF + Spec::SPEED_FRICTION_COEF * magnitude * magnitude;
 
-    if (magnitude < Spec::FRICTION_COEF * deltaTime)
+    if (magnitude < coef * deltaTime)
     {
         m_velocity.x = 0;
         m_velocity.y = 0;
@@ -48,7 +49,6 @@ void Ball::update(float deltaTime)
     else
     {
         float angle = std::abs(std::atan(m_velocity.y / m_velocity.x));
-        float coef = Spec::FRICTION_COEF * (1 + std::pow(magnitude / Spec::SPEED_FRICTION_COEF, 3.0f));
 
         if (m_velocity.x > 0)
             m_velocity.x -=  coef * std::cos(angle) * deltaTime;
@@ -92,8 +92,8 @@ bool Ball::checkCollisionWithBall(Ball& other)
     float angle = vec1to2.y > 0 ? std::acos(vec1to2.x) : -std::acos(vec1to2.x);
 
     // finds projections of the velocities onto the the line connecting the centres (rotates by 'angle')
-    sf::Vector2f u1_proj = sf::Vector2f(m_velocity.x*std::cos(-angle) - m_velocity.y*std::sin(-angle), m_velocity.x*std::sin(-angle) + m_velocity.y*std::cos(-angle));
-    sf::Vector2f u2_proj = sf::Vector2f(otherVelocity.x*std::cos(-angle) - otherVelocity.y*std::sin(-angle), otherVelocity.x*std::sin(-angle) + otherVelocity.y*std::cos(-angle));
+    sf::Vector2f u1_proj = sf::Vector2f{m_velocity.x*std::cos(-angle) - m_velocity.y*std::sin(-angle), m_velocity.x*std::sin(-angle) + m_velocity.y*std::cos(-angle)};
+    sf::Vector2f u2_proj = sf::Vector2f{otherVelocity.x*std::cos(-angle) - otherVelocity.y*std::sin(-angle), otherVelocity.x*std::sin(-angle) + otherVelocity.y*std::cos(-angle)};
 
     //only changes if the 2 balls are moving towards or one catches up with the other
     if ((u1_proj.x > 0.0f && u2_proj.x < 0.0f)
@@ -105,8 +105,8 @@ bool Ball::checkCollisionWithBall(Ball& other)
         u2_proj.x *= Spec::REBOUND_COEF;
 
         // from projections back to normal velocities (rotates back)
-        m_velocity = sf::Vector2f(u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle));
-        other.setVelocity(sf::Vector2f(u2_proj.x*std::cos(angle) - u2_proj.y*std::sin(angle), u2_proj.x*std::sin(angle) + u2_proj.y*std::cos(angle)));
+        m_velocity = sf::Vector2f{u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle)};
+        other.setVelocity(sf::Vector2f{u2_proj.x*std::cos(angle) - u2_proj.y*std::sin(angle), u2_proj.x*std::sin(angle) + u2_proj.y*std::cos(angle)});
 
         return true;
     }

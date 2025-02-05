@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "Spec.hpp"
 #include <cmath>
+#include <random>
 
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
@@ -16,19 +17,54 @@ Game::Game(const char* path) :
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
-    m_window.setFramerateLimit(144);
+    //m_window.setFramerateLimit(60);
 
-    m_balls.emplace_back(sf::Vector2f{600.0f, 300.0f}, Ball::Cue);
-    m_balls.emplace_back(sf::Vector2f{600.0f, 500.0f}, Ball::Player1);
-    for (int i = 0, n = 5; i < n; i++)
-    {
-        m_balls.emplace_back(sf::Vector2f{(i + 1) * Spec::TABLE_WIDTH / n, 400.0f}, Ball::Player2);
-    }
+    m_balls.reserve(Spec::BALLS_TOTAL);
+    initializeBalls();
 }
 
-bool Game::isRunning()
+void Game::initializeBalls()
 {
-    return m_window.isOpen();
+    m_balls.emplace_back(Spec::CUE_POS, Ball::Cue);
+
+    size_t player1Left = Spec::BALLS_PER_PLAYER;
+    size_t currColumn = 5;
+    size_t currIndex = 0;
+    sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
+    Ball::BallType type;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 1);
+
+    for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
+    {
+        if (i == Spec::EIGHTBALL_INDEX)
+        {
+            type = Ball::Eightball;
+        }
+        else
+        {
+            if (player1Left > 0 && distrib(gen))
+            {
+                type = Ball::Player1;
+                player1Left--;
+            }
+            else
+            {
+                type = Ball::Player2;
+            }
+        }
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * (Spec::BALL_RADIUS) * currIndex}, type);
+
+        currIndex++;
+        if (currIndex == currColumn)
+        {
+            currColumn--;
+            currIndex = 0;
+            pos += sf::Vector2f{(Spec::BALL_SPACING), (Spec::BALL_RADIUS)};
+        }
+    }
 }
 
 void Game::gameLoop()
@@ -68,7 +104,7 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
 {
     if (m_isEquilibrium 
         && event.mouseButton.button == sf::Mouse::Left 
-        && m_balls[m_cueIndex].isWithinBall(mousePos))
+        && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
     {
         m_isCharging = true;
         m_window.setTitle(Spec::TITLE_CHARGING);
@@ -79,15 +115,15 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
 {
     if (m_isCharging && event.mouseButton.button == sf::Mouse::Left)
     {
-        if (!m_balls[m_cueIndex].isWithinBall(mousePos))
+        if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
         {
-            sf::Vector2f chargeVelocity = m_balls[m_cueIndex].getPosition() - mousePos;
+            sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
             chargeVelocity *= 3.5f;
             if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Spec::MAX_CHARGE_VELOCITY)
             {
                 chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
             }
-            m_balls[m_cueIndex].setVelocity(chargeVelocity);
+            m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
             m_soundCollision.play();
         }
 
@@ -124,9 +160,9 @@ void Game::update()
             }
         }
 
-        for (int i = 0, n = m_balls.size(); i < n; ++i)
+        for (size_t i = 0; i < Spec::BALLS_TOTAL; i++)
         {
-            for (int j = i + 1; j < n; ++j)
+            for (size_t j = i + 1; j < Spec::BALLS_TOTAL; j++)
             {
                 if (m_balls[i].checkCollisionWithBall(m_balls[j]))
                     m_soundCollision.play();
@@ -139,7 +175,7 @@ void Game::update()
     m_pockets.update(m_deltaTime);
 
     if (m_isCharging)
-        m_trajectory.update(m_balls[m_cueIndex].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
+        m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
 
     m_fpsCounter.update(m_deltaTime);
 }
