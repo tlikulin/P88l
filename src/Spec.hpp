@@ -33,10 +33,13 @@ namespace Spec
                                                              {TABLE_RIGHT-POCKETS_OFFSET, TABLE_TOP+POCKETS_OFFSET},
                                                              {TABLE_RIGHT-POCKETS_OFFSET, TABLE_BOTTOM-POCKETS_OFFSET} }};
     constexpr float POCKET_RADIUS = 27.5f;
-    //Colours
-    const sf::Color BG_COLOUR{200, 200, 200};
-    const sf::Color TABLE_COLOUR{0x62a66fff};
-    const sf::Color TABLE_RAIL_COLOUR{0x7b4336ff};
+    constexpr float POCKET_ANIM_THICKNESS = 15.0f;
+    constexpr float POCKET_ANIM_RADIUS = 2.5f * POCKET_RADIUS;
+    constexpr float POCKET_ANIM_DURATION = 1.5f;
+    //Colors
+    const sf::Color BG_COLOR{200, 200, 200};
+    const sf::Color TABLE_COLOR{0x62a66fff};
+    const sf::Color TABLE_RAIL_COLOR{0x7b4336ff};
     //Reltive paths
     constexpr const char* PATH_TO_COLLISION_SOUND = "media/audio/ball_collision.wav";
     constexpr const char* PATH_TO_POTTING_SOUND = "media/audio/potting.wav";

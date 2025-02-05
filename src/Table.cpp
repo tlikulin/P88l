@@ -5,32 +5,32 @@ Table::Table()
 {
     m_cloth.setSize(sf::Vector2f(Spec::TABLE_WIDTH, Spec::TABLE_HEIGHT));
     m_cloth.setPosition(Spec::TABLE_LEFT, Spec::TABLE_TOP);
-    m_cloth.setFillColor(Spec::TABLE_COLOUR);
+    m_cloth.setFillColor(Spec::TABLE_COLOR);
 
     m_rails[0].setPointCount(4);
     m_rails[0].setPoint(0, {Spec::TABLE_LEFT, Spec::TABLE_TOP});
     m_rails[0].setPoint(1, {Spec::TABLE_LEFT - Spec::TABLE_RAIL_WIDTH, Spec::TABLE_TOP - Spec::TABLE_RAIL_WIDTH});
     m_rails[0].setPoint(2, {Spec::TABLE_RIGHT + Spec::TABLE_RAIL_WIDTH, Spec::TABLE_TOP - Spec::TABLE_RAIL_WIDTH});
     m_rails[0].setPoint(3, {Spec::TABLE_RIGHT, Spec::TABLE_TOP});
-    m_rails[0].setFillColor(Spec::TABLE_RAIL_COLOUR);
+    m_rails[0].setFillColor(Spec::TABLE_RAIL_COLOR);
     m_rails[1].setPointCount(4);
     m_rails[1].setPoint(0, {Spec::TABLE_RIGHT, Spec::TABLE_TOP});
     m_rails[1].setPoint(1, {Spec::TABLE_RIGHT + Spec::TABLE_RAIL_WIDTH, Spec::TABLE_TOP - Spec::TABLE_RAIL_WIDTH});
     m_rails[1].setPoint(2, {Spec::TABLE_RIGHT + Spec::TABLE_RAIL_WIDTH, Spec::TABLE_BOTTOM + Spec::TABLE_RAIL_WIDTH});
     m_rails[1].setPoint(3, {Spec::TABLE_RIGHT, Spec::TABLE_BOTTOM});
-    m_rails[1].setFillColor(Spec::TABLE_RAIL_COLOUR);
+    m_rails[1].setFillColor(Spec::TABLE_RAIL_COLOR);
     m_rails[2].setPointCount(4);
     m_rails[2].setPoint(0, {Spec::TABLE_RIGHT, Spec::TABLE_BOTTOM});
     m_rails[2].setPoint(1, {Spec::TABLE_RIGHT + Spec::TABLE_RAIL_WIDTH, Spec::TABLE_BOTTOM + Spec::TABLE_RAIL_WIDTH});
     m_rails[2].setPoint(2, {Spec::TABLE_LEFT - Spec::TABLE_RAIL_WIDTH, Spec::TABLE_BOTTOM + Spec::TABLE_RAIL_WIDTH});
     m_rails[2].setPoint(3, {Spec::TABLE_LEFT, Spec::TABLE_BOTTOM});
-    m_rails[2].setFillColor(Spec::TABLE_RAIL_COLOUR);
+    m_rails[2].setFillColor(Spec::TABLE_RAIL_COLOR);
     m_rails[3].setPointCount(4);
     m_rails[3].setPoint(0, {Spec::TABLE_LEFT, Spec::TABLE_BOTTOM});
     m_rails[3].setPoint(1, {Spec::TABLE_LEFT - Spec::TABLE_RAIL_WIDTH, Spec::TABLE_BOTTOM + Spec::TABLE_RAIL_WIDTH});
     m_rails[3].setPoint(2, {Spec::TABLE_LEFT - Spec::TABLE_RAIL_WIDTH, Spec::TABLE_TOP - Spec::TABLE_RAIL_WIDTH});
     m_rails[3].setPoint(3, {Spec::TABLE_LEFT, Spec::TABLE_TOP});
-    m_rails[3].setFillColor(Spec::TABLE_RAIL_COLOUR);
+    m_rails[3].setFillColor(Spec::TABLE_RAIL_COLOR);
 
     m_contour.setSize({Spec::TABLE_WIDTH, Spec::TABLE_HEIGHT});
     m_contour.setFillColor(sf::Color::Transparent);

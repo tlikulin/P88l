@@ -7,28 +7,26 @@ Ball::Ball(sf::Vector2f position, BallType type) :
     m_type{type}
 {
     m_body.setRadius(Spec::BALL_RADIUS);
-    sf::Color colour;
+    m_body.setFillColor(colorFromType(type));
+    m_body.setPosition(position);
+    m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
+}
+
+sf::Color Ball::colorFromType(BallType type)
+{
     switch(type)
     {
     case Cue:
-        colour = sf::Color::White;
-        break;
+        return sf::Color::White;
     case Player1:
-        colour = sf::Color::Red;
-        break;
+        return sf::Color::Red;
     case Player2:
-        colour = sf::Color::Blue;
-        break;
+        return sf::Color::Blue;
     case Eightball:
-        colour = sf::Color::Black;
-        break;
+        return sf::Color::Black;
     default:
-        colour = sf::Color::Magenta;
-        break;
+        return sf::Color::Magenta;
     }
-    m_body.setFillColor(colour);
-    m_body.setPosition(position);
-    m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
 }
 
 void Ball::draw(sf::RenderWindow& window) const

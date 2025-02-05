@@ -22,7 +22,7 @@ Game::Game(const char* path) :
     m_balls.emplace_back(sf::Vector2f{600.0f, 500.0f}, Ball::Player1);
     for (int i = 0, n = 5; i < n; i++)
     {
-        m_balls.emplace_back(sf::Vector2f{(i + 1) * Spec::TABLE_WIDTH / n, 400.0f}, Ball::Player1);
+        m_balls.emplace_back(sf::Vector2f{(i + 1) * Spec::TABLE_WIDTH / n, 400.0f}, Ball::Player2);
     }
 }
 
@@ -136,6 +136,8 @@ void Game::update()
 
     m_isEquilibrium = checkEquilibrium();
 
+    m_pockets.update(m_deltaTime);
+
     if (m_isCharging)
         m_trajectory.update(m_balls[m_cueIndex].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
 
@@ -153,7 +155,7 @@ bool Game::checkEquilibrium()
 
 void Game::draw()
 {
-    m_window.clear(Spec::BG_COLOUR);
+    m_window.clear(Spec::BG_COLOR);
     m_table.draw(m_window);
     m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)

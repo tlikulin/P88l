@@ -31,6 +31,8 @@ public:
     sf::Vector2f getVelocity()  const { return m_velocity; }
     sf::Vector2f getPosition()  const { return m_body.getPosition(); }
     BallType getType()          const { return m_type; }
+
+    static sf::Color colorFromType(BallType type);
 private:
     sf::CircleShape m_body;
     sf::Vector2f m_velocity;
