@@ -21,10 +21,10 @@ namespace Spec
     inline constexpr float TABLE_RAIL_WIDTH             = 45.0f;
     inline constexpr float TABLE_CONTOUR_WIDTH          = 3.0f;
     //Balls
-    inline constexpr float BALL_RADIUS                  = 20.0f;
+    inline constexpr float BALL_RADIUS                  = 15.0f;
     inline constexpr float MAX_CHARGE_VELOCITY          = 2500.0f;
     inline constexpr float FRICTION_COEF                = 80.0f;
-    inline constexpr float SPEED_FRICTION_COEF          = 0.0005f;
+    inline constexpr float SPEED_FRICTION_COEF          = 0.0007f;
     inline constexpr float REBOUND_COEF                 = 0.95f;
 
     inline constexpr float BALL_SPACING                 = std::numbers::sqrt3_v<float> * BALL_RADIUS;
@@ -32,7 +32,10 @@ namespace Spec
     inline constexpr size_t EIGHTBALL_INDEX             = 11;
     inline constexpr size_t BALLS_PER_PLAYER            = 7;
     inline constexpr size_t BALLS_TOTAL                 = 2 * BALLS_PER_PLAYER + 2;
-    inline const sf::Vector2f CUE_POS                   {TABLE_LEFT + 0.75f * TABLE_WIDTH, TABLE_TOP + 0.5f * TABLE_HEIGHT};
+    inline constexpr float CUE_POS_X                    = TABLE_LEFT + 0.75f * TABLE_WIDTH;
+    inline constexpr float CUE_POS_Y                    = TABLE_TOP + 0.5f * TABLE_HEIGHT;
+    inline constexpr float CUE_POS_Y_MIN                = TABLE_TOP + 0.3f * TABLE_HEIGHT;
+    inline constexpr float CUE_POS_Y_MAX                = TABLE_TOP + 0.7f * TABLE_HEIGHT;
     inline const sf::Vector2f BALL_TOPLEFT_POS          {TABLE_LEFT + 0.25f * TABLE_WIDTH, TABLE_TOP + 0.5f * TABLE_HEIGHT - 4.0f * BALL_RADIUS};
     //Pockets
     inline constexpr size_t NUM_POCKETS                 = 6;
@@ -43,7 +46,7 @@ namespace Spec
                                                                     {(TABLE_LEFT + TABLE_RIGHT)/2.0f, TABLE_BOTTOM + POCKETS_OFFSET},
                                                                     {TABLE_RIGHT - POCKETS_OFFSET, TABLE_TOP + POCKETS_OFFSET},
                                                                     {TABLE_RIGHT - POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET} }};
-    inline constexpr float POCKET_RADIUS                = 25.0f;
+    inline constexpr float POCKET_RADIUS                = 20.0f;
     inline constexpr float POCKET_ANIM_THICKNESS        = 15.0f;
     inline constexpr float POCKET_ANIM_RADIUS           = 2.5f * POCKET_RADIUS;
     inline constexpr float POCKET_ANIM_DURATION         = 1.5f;

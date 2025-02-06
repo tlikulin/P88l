@@ -17,7 +17,7 @@ Game::Game(const char* path) :
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
-    //m_window.setFramerateLimit(60);
+    m_window.setFramerateLimit(144);
 
     m_balls.reserve(Spec::BALLS_TOTAL);
     initializeBalls();
@@ -25,17 +25,19 @@ Game::Game(const char* path) :
 
 void Game::initializeBalls()
 {
-    m_balls.emplace_back(Spec::CUE_POS, Ball::Cue);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution distrib(0, 1);
+    std::uniform_real_distribution<float> rdistrib(Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX);
+
+    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(gen)}, Ball::Cue);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
+    size_t player2Left = Spec::BALLS_PER_PLAYER;
     size_t currColumn = 5;
     size_t currIndex = 0;
     sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
     Ball::BallType type;
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, 1);
 
     for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
     {
@@ -45,7 +47,7 @@ void Game::initializeBalls()
         }
         else
         {
-            if (player1Left > 0 && distrib(gen))
+            if (player2Left == 0 || (player1Left > 0 && distrib(gen)))
             {
                 type = Ball::Player1;
                 player1Left--;
@@ -53,16 +55,18 @@ void Game::initializeBalls()
             else
             {
                 type = Ball::Player2;
+                player2Left--;
             }
         }
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * (Spec::BALL_RADIUS) * currIndex}, type);
+
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * (Spec::BALL_RADIUS + 0.3f) * currIndex}, type);
 
         currIndex++;
         if (currIndex == currColumn)
         {
             currColumn--;
             currIndex = 0;
-            pos += sf::Vector2f{(Spec::BALL_SPACING), (Spec::BALL_RADIUS)};
+            pos += sf::Vector2f{(Spec::BALL_SPACING), (Spec::BALL_RADIUS + 0.3f)};
         }
     }
 }
