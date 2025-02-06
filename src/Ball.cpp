@@ -18,12 +18,12 @@ sf::Color Ball::colorFromType(BallType type)
     {
     case Cue:
         return sf::Color::White;
-    case Player1:
-        return sf::Color::Red;
-    case Player2:
-        return sf::Color::Blue;
     case Eightball:
         return sf::Color::Black;
+    case Player1:
+        return Spec::PLAYER1_COLOR;
+    case Player2:
+        return Spec::PLAYER2_COLOR;
     default:
         return sf::Color::Magenta;
     }
@@ -31,13 +31,34 @@ sf::Color Ball::colorFromType(BallType type)
 
 void Ball::draw(sf::RenderWindow& window) const
 {
-    window.draw(m_body);
+    if (m_type != Potted || m_animationDuration > 0.0f)
+        window.draw(m_body);
 }
 
-// Only moves the ball without checking collisions
-// Friction is applied
+// Only moves the ball without checking collisions.
+// Friction is applied.
+// If the animation should be played, does that instead.
 void Ball::update(float deltaTime)
 {
+    if (m_type == Potted)
+    {
+        if (m_animationDuration != 0.0f)
+        {
+            m_animationDuration -= deltaTime;
+            if (m_animationDuration <= 0)
+                m_animationDuration = 0.0f;
+            else
+            {
+                const float radius = Spec::BALL_RADIUS * calculateAnimationRadius();
+                m_body.setRadius(radius);
+                m_body.setOrigin(radius, radius);
+                m_body.move(m_animationShift * deltaTime / Spec::POTTING_ANIM_DURATION);
+            }
+        }
+
+        return;
+    }
+
     float magnitude = std::hypot(m_velocity.x, m_velocity.y);
     float coef = Spec::FRICTION_COEF + Spec::SPEED_FRICTION_COEF * magnitude * magnitude;
 
@@ -62,6 +83,16 @@ void Ball::update(float deltaTime)
     }
 
     m_body.move(m_velocity * deltaTime);
+}
+
+float Ball::calculateAnimationRadius()
+{
+    static constexpr float a = -2.4f / (Spec::POTTING_ANIM_DURATION * Spec::POTTING_ANIM_DURATION);
+    static constexpr float b = 1.4f / Spec::POTTING_ANIM_DURATION;
+    static constexpr float c = 1.0f;
+    
+    const float time = Spec::POTTING_ANIM_DURATION - m_animationDuration;
+    return a * time * time + b * time + c;
 }
 
 void Ball::scaleVelocity(float xScale, float yScale)
@@ -144,7 +175,9 @@ bool Ball::isWithinBall(const sf::Vector2f& pos)
     return std::hypot(pos.x - getPosition().x, pos.y - getPosition().y) <= Spec::BALL_RADIUS;
 }
 
-void Ball::pot()
+void Ball::pot(const sf::Vector2f& pocket)
 {
     m_type = Potted;
+    m_animationDuration = Spec::POTTING_ANIM_DURATION;
+    m_animationShift = pocket - m_body.getPosition();
 }

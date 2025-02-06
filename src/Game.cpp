@@ -150,20 +150,20 @@ void Game::handleKeyPressed(const sf::Event& event)
 
 void Game::update()
 {
+    for (Ball& ball : m_balls)
+    {
+        ball.update(m_deltaTime);
+        if (!m_isEquilibrium && ball.getType() != Ball::Potted)
+        {
+            if (m_pockets.isBallPotted(ball))
+                m_soundPotting.play();
+            else if (ball.checkCollisionWithBorder())
+                m_soundCollision.play();
+        }
+    }
+
     if (!m_isEquilibrium)
     {
-        for (Ball& ball : m_balls)
-        {
-            if (ball.getType() != Ball::Potted)
-            {
-                ball.update(m_deltaTime);
-                if (m_pockets.isBallPotted(ball))
-                    m_soundPotting.play();
-                else if (ball.checkCollisionWithBorder())
-                    m_soundCollision.play();
-            }
-        }
-
         for (size_t i = 0; i < Spec::BALLS_TOTAL; i++)
         {
             for (size_t j = i + 1; j < Spec::BALLS_TOTAL; j++)
@@ -175,8 +175,6 @@ void Game::update()
     }
 
     m_isEquilibrium = checkEquilibrium();
-
-    m_pockets.update(m_deltaTime);
 
     if (m_isCharging)
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
@@ -199,8 +197,7 @@ void Game::draw()
     m_table.draw(m_window);
     m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)
-        if (ball.getType() != Ball::Potted)
-            ball.draw(m_window);
+        ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
     if (m_isFpsShown)
