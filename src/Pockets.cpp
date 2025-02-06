@@ -50,7 +50,7 @@ bool Pockets::isBallPotted(Ball& ball)
     for (size_t i = 0; i < Spec::NUM_POCKETS; i++)
     {
         sf::Vector2f displacement = m_pockets[i].getPosition() - ball.getPosition();
-        if (std::hypot(displacement.x, displacement.y) < Spec::BALL_RADIUS + Spec::POCKET_RADIUS)
+        if (std::hypot(displacement.x, displacement.y) < Spec::POCKET_THRESHOLD)
         {
             m_effects[i].first.setOutlineColor(Ball::colorFromType(ball.getType()));
             m_effects[i].second = Spec::POCKET_ANIM_DURATION;
