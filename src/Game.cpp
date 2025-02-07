@@ -17,7 +17,7 @@ Game::Game(const char* path) :
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
-    m_window.setFramerateLimit(144);
+    m_window.setFramerateLimit(240);
 
     m_balls.reserve(Spec::BALLS_TOTAL);
     initializeBalls();
