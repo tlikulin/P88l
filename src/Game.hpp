@@ -7,6 +7,7 @@
 #include "Table.hpp"
 #include "Pockets.hpp"
 #include "FPSCounter.hpp"
+#include "Score.hpp"
 
 class Game
 {
@@ -33,6 +34,7 @@ private:
     // UI
     FPSCounter m_fpsCounter;
     bool m_isFpsShown = true;
+    Score m_score;
     // resources
     std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCollision;

@@ -23,8 +23,8 @@ namespace Spec
     //Balls
     inline constexpr float BALL_RADIUS                  = 15.0f;
     inline constexpr float MAX_CHARGE_VELOCITY          = 3000.0f;
-    inline constexpr float FRICTION_COEF                = 70.0f;
-    inline constexpr float SPEED_FRICTION_COEF          = 0.0007f;
+    inline constexpr float FRICTION_COEF                = 80.0f;
+    inline constexpr float SPEED_FRICTION_COEF          = 0.0006f;
     inline constexpr float REBOUND_COEF                 = 0.95f;
     inline constexpr float BALL_SPREAD_SPEED_COEF       = 15.0f;
     inline constexpr float POTTING_ANIM_DURATION        = 1.5f;
@@ -50,12 +50,18 @@ namespace Spec
                                                                     {TABLE_RIGHT - POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET} }};
     inline constexpr float POCKET_RADIUS                = 20.0f;
     inline constexpr float POCKET_THRESHOLD             = 0.85f * (Spec::BALL_RADIUS + Spec::POCKET_RADIUS);
+    // UI
+    inline constexpr unsigned int SCORE_CHAR_SIZE       = 40u;
+    inline const sf::Vector2f SCORE1_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) - 60.0f, 20.0f};
+    inline const sf::Vector2f SCORE_SEP_POS             {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4), 15.0f}; 
+    inline const sf::Vector2f SCORE2_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) + 60.0f, 20.0f}; 
     //Colors
     inline const sf::Color BG_COLOR                     {0xc8c8c8ff};
     inline const sf::Color TABLE_COLOR                  {0x62a66fff};
     inline const sf::Color TABLE_RAIL_COLOR             {0x7b4336ff};
+    inline const sf::Color EIGHTBALL_COLOR              {0x010414ff};
     inline const sf::Color PLAYER1_COLOR                {0xfcd700ff};
-    inline const sf::Color PLAYER2_COLOR                {0x720004ff};
+    inline const sf::Color PLAYER2_COLOR                {0x720004ff}; 
     //Paths
     inline const std::filesystem::path MEDIA_DIR                = "media";
     inline const std::filesystem::path AUDIO_DIR                = MEDIA_DIR / "audio";

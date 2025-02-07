@@ -19,7 +19,7 @@ sf::Color Ball::colorFromType(BallType type)
     case Cue:
         return sf::Color::White;
     case Eightball:
-        return sf::Color::Black;
+        return Spec::EIGHTBALL_COLOR;
     case Player1:
         return Spec::PLAYER1_COLOR;
     case Player2:

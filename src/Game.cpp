@@ -9,6 +9,7 @@ Game::Game(const char* path) :
 {
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
     m_fpsCounter.setFont(m_font);
+    m_score.setFont(m_font);
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
     m_soundCollision.setBuffer(m_bufferCollision);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
@@ -59,14 +60,14 @@ void Game::initializeBalls()
             }
         }
 
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * (Spec::BALL_RADIUS + 0.3f) * currIndex}, type);
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type);
 
         currIndex++;
         if (currIndex == currColumn)
         {
             currColumn--;
             currIndex = 0;
-            pos += sf::Vector2f{(Spec::BALL_SPACING), (Spec::BALL_RADIUS + 0.3f)};
+            pos += sf::Vector2f{Spec::BALL_SPACING, Spec::BALL_RADIUS};
         }
     }
 }
@@ -153,10 +154,14 @@ void Game::update()
     for (Ball& ball : m_balls)
     {
         ball.update(m_deltaTime);
-        if (!m_isEquilibrium && ball.getType() != Ball::Potted)
+        const Ball::BallType type = ball.getType();
+        if (!m_isEquilibrium && type != Ball::Potted)
         {
             if (m_pockets.isBallPotted(ball))
+            {
+                m_score.update(type);
                 m_soundPotting.play();
+            }
             else if (ball.checkCollisionWithBorder())
                 m_soundCollision.play();
         }
@@ -200,6 +205,7 @@ void Game::draw()
         ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
+    m_score.draw(m_window);
     if (m_isFpsShown)
         m_fpsCounter.draw(m_window);
     m_window.display();
