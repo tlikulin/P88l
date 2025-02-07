@@ -24,10 +24,9 @@ namespace Spec
     inline constexpr float BALL_RADIUS                  = 15.0f;
     inline constexpr float MAX_CHARGE_VELOCITY          = 3000.0f;
     inline constexpr float FRICTION_COEF                = 80.0f;
-    inline constexpr float SPEED_FRICTION_COEF          = 0.0006f;
+    inline constexpr float SPEED_FRICTION_COEF          = 0.00065f;
     inline constexpr float REBOUND_COEF                 = 0.95f;
-    inline constexpr float BALL_SPREAD_SPEED_COEF       = 15.0f;
-    inline constexpr float POTTING_ANIM_DURATION        = 1.5f;
+    inline constexpr float POTTING_ANIM_DURATION        = 1.2f;
     //starting position
     inline constexpr float BALL_SPACING                 = std::numbers::sqrt3_v<float> * BALL_RADIUS;
     inline constexpr size_t CUE_INDEX                   = 0;

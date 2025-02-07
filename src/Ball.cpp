@@ -134,15 +134,7 @@ bool Ball::checkCollisionWithBall(Ball& other)
     {
         std::swap(u1_proj.x, u2_proj.x);
         u1_proj.x *= Spec::REBOUND_COEF;
-        if (u1_proj.x > 0.0f)
-            u1_proj.x += intersection * Spec::BALL_SPREAD_SPEED_COEF;
-        else if (u1_proj.x < 0.0f)
-            u1_proj.x -= intersection * Spec::BALL_SPREAD_SPEED_COEF;
         u2_proj.x *= Spec::REBOUND_COEF;
-        if (u2_proj.x > 0.0f)
-            u2_proj.x += intersection * Spec::BALL_SPREAD_SPEED_COEF;
-        else if (u2_proj.x < 0.0f)
-            u2_proj.x -= intersection * Spec::BALL_SPREAD_SPEED_COEF;
 
         // from projections back to normal velocities (rotates back)
         m_velocity = sf::Vector2f{u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle)};
