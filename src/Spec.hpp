@@ -51,11 +51,11 @@ namespace Spec
     inline constexpr float POCKET_THRESHOLD             = 0.85f * (Spec::BALL_RADIUS + Spec::POCKET_RADIUS);
     // UI
     inline constexpr unsigned int SCORE_CHAR_SIZE       = 40u;
-    inline const sf::Vector2f SCORE1_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) - 60.0f, 20.0f};
-    inline const sf::Vector2f SCORE_SEP_POS             {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4), 15.0f}; 
-    inline const sf::Vector2f SCORE2_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) + 60.0f, 20.0f}; 
+    inline const sf::Vector2f SCORE1_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) - 60.0f, 15.0f};
+    inline const sf::Vector2f SCORE_SEP_POS             {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4), 10.0f}; 
+    inline const sf::Vector2f SCORE2_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) + 60.0f, 15.0f}; 
     //Colors
-    inline const sf::Color BG_COLOR                     {0xc8c8c8ff};
+    inline const sf::Color BG_COLOR                     {0xa8a8a8ff};
     inline const sf::Color TABLE_COLOR                  {0x62a66fff};
     inline const sf::Color TABLE_RAIL_COLOR             {0x7b4336ff};
     inline const sf::Color EIGHTBALL_COLOR              {0x010414ff};

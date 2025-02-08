@@ -18,7 +18,7 @@ Game::Game(const char* path) :
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
-    m_window.setFramerateLimit(144);
+    m_window.setFramerateLimit(200);
 
     m_balls.reserve(Spec::BALLS_TOTAL);
     initializeBalls();
@@ -127,6 +127,7 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
             if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Spec::MAX_CHARGE_VELOCITY)
             {
                 chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
+                m_isEquilibrium = false;
             }
             m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
             m_soundCollision.play();
@@ -154,12 +155,11 @@ void Game::update()
     for (Ball& ball : m_balls)
     {
         ball.update(m_deltaTime);
-        const Ball::BallType type = ball.getType();
-        if (!m_isEquilibrium && type != Ball::Potted)
+        if (!m_isEquilibrium && !ball.isPotted())
         {
             if (m_pockets.isBallPotted(ball))
             {
-                m_score.update(type);
+                m_score.update(ball);
                 m_soundPotting.play();
             }
             else if (ball.checkCollisionWithBorder())
@@ -190,7 +190,8 @@ void Game::update()
 bool Game::checkEquilibrium()
 {
     for (const Ball& ball : m_balls)
-        if (ball.getType() != Ball::Potted
+        if (!ball.isPotted()
+            && !ball.isAnimationPlaying()
             && ball.getVelocity() != sf::Vector2f(0.0f, 0.0f))
             return false;
     return true;
@@ -202,7 +203,7 @@ void Game::draw()
     m_table.draw(m_window);
     m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)
-        ball.draw(m_window);
+    ball.draw(m_window);
     if (m_isCharging)
         m_trajectory.draw(m_window);
     m_score.draw(m_window);

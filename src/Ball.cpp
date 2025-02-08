@@ -8,8 +8,8 @@ Ball::Ball(sf::Vector2f position, BallType type) :
 {
     m_body.setRadius(Spec::BALL_RADIUS);
     m_body.setFillColor(colorFromType(type));
-    m_body.setPosition(position);
     m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
+    m_body.setPosition(position);
 }
 
 sf::Color Ball::colorFromType(BallType type)
@@ -31,8 +31,7 @@ sf::Color Ball::colorFromType(BallType type)
 
 void Ball::draw(sf::RenderWindow& window) const
 {
-    if (m_type != Potted || m_animationDuration > 0.0f)
-        window.draw(m_body);
+    window.draw(m_body);
 }
 
 // Only moves the ball without checking collisions.
@@ -40,13 +39,18 @@ void Ball::draw(sf::RenderWindow& window) const
 // If the animation should be played, does that instead.
 void Ball::update(float deltaTime)
 {
-    if (m_type == Potted)
+    if (m_isPotted)
     {
-        if (m_animationDuration != 0.0f)
+        if (m_animationDuration > 0.0f)
         {
             m_animationDuration -= deltaTime;
-            if (m_animationDuration <= 0)
+            if (m_animationDuration <= 0.0f)
+            {
                 m_animationDuration = 0.0f;
+                m_body.setPosition(m_scoredPosition);
+                m_body.setRadius(Spec::BALL_RADIUS);
+                m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
+            }
             else
             {
                 const float radius = Spec::BALL_RADIUS * calculateAnimationRadius();
@@ -106,7 +110,7 @@ void Ball::scaleVelocity(float xScale, float yScale)
 // (oblique collision of 2 smooth balls)
 bool Ball::checkCollisionWithBall(Ball& other)
 {
-    if (m_type == Potted || other.getType() == Potted)
+    if (isPotted() || other.isPotted())
         return false;
 
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
@@ -178,7 +182,7 @@ bool Ball::isWithinBall(const sf::Vector2f& pos)
 
 void Ball::pot(const sf::Vector2f& pocket)
 {
-    m_type = Potted;
+    m_isPotted = true;
     m_animationDuration = Spec::POTTING_ANIM_DURATION;
     m_animationShift = pocket - m_body.getPosition();
 }
