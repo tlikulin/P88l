@@ -65,6 +65,7 @@ namespace Spec
     inline const std::filesystem::path MEDIA_DIR                = "media";
     inline const std::filesystem::path AUDIO_DIR                = MEDIA_DIR / "audio";
     inline const std::filesystem::path FONTS_DIR                = MEDIA_DIR / "fonts";
+    inline const std::filesystem::path PATH_TO_CUE_SOUND        = AUDIO_DIR / "cue_strike.wav";
     inline const std::filesystem::path PATH_TO_COLLISION_SOUND  = AUDIO_DIR / "ball_collision.wav";
     inline const std::filesystem::path PATH_TO_POTTING_SOUND    = AUDIO_DIR / "potting.wav";
     inline const std::filesystem::path PATH_TO_FONT             = FONTS_DIR / "MesloLGS NF Regular.ttf";

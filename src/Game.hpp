@@ -37,6 +37,8 @@ private:
     Score m_score;
     // resources
     std::filesystem::path m_path;
+    sf::SoundBuffer m_bufferCue;
+    sf::Sound m_soundCue;
     sf::SoundBuffer m_bufferCollision;
     sf::Sound m_soundCollision;
     sf::SoundBuffer m_bufferPotting;

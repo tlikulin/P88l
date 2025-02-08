@@ -10,10 +10,14 @@ Game::Game(const char* path) :
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
     m_fpsCounter.setFont(m_font);
     m_score.setFont(m_font);
+
+    m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
+    m_soundCue.setBuffer(m_bufferCue);
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
     m_soundCollision.setBuffer(m_bufferCollision);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
     m_soundPotting.setBuffer(m_bufferPotting);
+    m_soundCue.setVolume(80.0f);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -130,7 +134,7 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
                 m_isEquilibrium = false;
             }
             m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
-            m_soundCollision.play();
+            m_soundCue.play();
         }
 
         m_isCharging = false;
