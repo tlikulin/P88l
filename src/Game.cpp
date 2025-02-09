@@ -125,16 +125,17 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
 {
     if (m_state == P1toMove
     &&  event.mouseButton.button == sf::Mouse::Left 
+    &&  !m_balls[Spec::CUE_INDEX].isPotted()
     &&  m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
     {
-        m_state = P1Aims;
+        m_state = P1Aiming;
         m_window.setTitle(Spec::TITLE_CHARGING);
     }
 }
 
 void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos)
 {
-    if (m_state == P1Aims && event.mouseButton.button == sf::Mouse::Left)
+    if (m_state == P1Aiming && event.mouseButton.button == sf::Mouse::Left)
     {
         if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
         {
@@ -205,7 +206,7 @@ void Game::update()
             m_state = P1toMove;
         }
         break;
-    case P1Aims:
+    case P1Aiming:
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
     case P1toMove:
     default:
@@ -236,7 +237,7 @@ void Game::draw()
     {
         ball.draw(m_window);
     }
-    if (m_state == P1Aims)
+    if (m_state == P1Aiming)
     {
         m_trajectory.draw(m_window);
     }
@@ -257,7 +258,7 @@ const char* Game::getStateAsString()
         return "none";
     case P1toMove:
         return "P1 to move";
-    case P1Aims:
+    case P1Aiming:
         return "P1 aiming";
     case P1Motion:
         return "P1";

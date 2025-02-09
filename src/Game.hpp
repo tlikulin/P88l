@@ -11,17 +11,17 @@
 
 class Game
 {
+public:
+    explicit Game(const char* path);
+    void run();
 private:
     enum GameState : std::uint8_t
     {
         None = 0,
         P1toMove,
-        P1Aims,
+        P1Aiming,
         P1Motion
     };
-public:
-    explicit Game(const char* path);
-    void run();
 private:
     void initializeBalls();
     bool isRunning() { return m_window.isOpen(); }
