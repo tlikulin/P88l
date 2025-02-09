@@ -17,7 +17,7 @@ Game::Game(const char* path) :
     m_soundCollision.setBuffer(m_bufferCollision);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
     m_soundPotting.setBuffer(m_bufferPotting);
-    m_soundCue.setVolume(80.0f);
+    m_soundPotting.setVolume(80.0f);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -76,6 +76,12 @@ void Game::initializeBalls()
     }
 }
 
+void Game::run()
+{
+    while (isRunning())
+        gameLoop();
+}
+
 void Game::gameLoop()
 {
     m_deltaTime = m_clock.restart().asSeconds();
@@ -96,10 +102,10 @@ void Game::handleEvent(const sf::Event& event)
         m_window.close();
         break;
     case sf::Event::MouseButtonPressed:
-        handleMouseButtonPressed(event, sf::Vector2f(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
+        handleMouseButtonPressed(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
         break;
     case sf::Event::MouseButtonReleased:
-        handleMouseButtonReleased(event, sf::Vector2f(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
+        handleMouseButtonReleased(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
         break;
     case sf::Event::KeyPressed:
         handleKeyPressed(event);

@@ -3,9 +3,7 @@
 int main(int  /*argc*/, char** argv)
 {
     Game game{argv[0]};
-
-    while (game.isRunning())
-        game.gameLoop();
+    game.run();
 
     return 0;
 }

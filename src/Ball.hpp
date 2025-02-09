@@ -14,7 +14,7 @@ public:
         Player2
     };
 public:
-    Ball(sf::Vector2f position, BallType type);
+    explicit Ball(sf::Vector2f position, BallType type);
 
     static sf::Color colorFromType(BallType type);
 

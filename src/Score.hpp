@@ -10,8 +10,8 @@ public:
     void update(Ball& ball);
     void draw(sf::RenderWindow& window);
 private:
-    size_t m_player1 = 0;
-    size_t m_player2 = 0;
+    unsigned int m_player1 = 0;
+    unsigned int m_player2 = 0;
     sf::Text m_textPlayer1;
     sf::Text m_textSeparator;
     sf::Text m_textPlayer2;

@@ -14,7 +14,7 @@ public:
         All
     }; 
 public:
-    Trajectory(TrajectoryMode mode);
+    explicit Trajectory(TrajectoryMode mode);
     void update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePosition);
     void draw(sf::RenderWindow& window);
     void cycleMode();

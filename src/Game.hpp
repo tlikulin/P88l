@@ -12,10 +12,11 @@
 class Game
 {
 public:
-    Game(const char* path);
+    explicit Game(const char* path);
+    void run();
+private:
     bool isRunning() { return m_window.isOpen(); }
     void gameLoop();
-private:
     void initializeBalls();
     void handleEvent(const sf::Event& event);
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
@@ -33,7 +34,6 @@ private:
     Trajectory m_trajectory;
     // UI
     FPSCounter m_fpsCounter;
-    bool m_isFpsShown = true;
     Score m_score;
     // resources
     std::filesystem::path m_path;
@@ -48,6 +48,7 @@ private:
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;
     // states
+    bool m_isFpsShown = true;
     bool m_isCharging = false;
     bool m_isEquilibrium = false;
 };
