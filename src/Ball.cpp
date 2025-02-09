@@ -183,6 +183,7 @@ bool Ball::isWithinBall(const sf::Vector2f& pos)
 void Ball::pot(const sf::Vector2f& pocket)
 {
     m_isPotted = true;
+    m_velocity = {0.0f, 0.0f};
     m_animationDuration = Spec::POTTING_ANIM_DURATION;
     m_animationShift = pocket - m_body.getPosition();
 }

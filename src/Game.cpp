@@ -5,11 +5,14 @@
 
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
-    m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()}
+    m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()},
+    m_state{P1toMove}
 {
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
     m_fpsCounter.setFont(m_font);
     m_score.setFont(m_font);
+    m_phase.setFont(m_font);
+    m_phase.setPosition(30.0f, 20.0f);
 
     m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
     m_soundCue.setBuffer(m_bufferCue);
@@ -79,7 +82,10 @@ void Game::initializeBalls()
 void Game::run()
 {
     while (isRunning())
+    {
         gameLoop();
+        m_phase.setString(getStateAsString());
+    }
 }
 
 void Game::gameLoop()
@@ -117,18 +123,18 @@ void Game::handleEvent(const sf::Event& event)
 
 void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
 {
-    if (m_isEquilibrium 
-        && event.mouseButton.button == sf::Mouse::Left 
-        && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
+    if (m_state == P1toMove
+    &&  event.mouseButton.button == sf::Mouse::Left 
+    &&  m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
     {
-        m_isCharging = true;
+        m_state = P1Aims;
         m_window.setTitle(Spec::TITLE_CHARGING);
     }
 }
 
 void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos)
 {
-    if (m_isCharging && event.mouseButton.button == sf::Mouse::Left)
+    if (m_state == P1Aims && event.mouseButton.button == sf::Mouse::Left)
     {
         if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
         {
@@ -137,13 +143,16 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
             if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Spec::MAX_CHARGE_VELOCITY)
             {
                 chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
-                m_isEquilibrium = false;
             }
             m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
             m_soundCue.play();
+            m_state = P1Motion;
         }
-
-        m_isCharging = false;
+        else
+        {
+            m_state = P1toMove;
+        }
+        
         m_window.setTitle(Spec::TITLE);
     }
 }
@@ -162,48 +171,59 @@ void Game::handleKeyPressed(const sf::Event& event)
 
 void Game::update()
 {
-    for (Ball& ball : m_balls)
+    switch (m_state)
     {
-        ball.update(m_deltaTime);
-        if (!m_isEquilibrium && !ball.isPotted())
+    case P1Motion:
+        for (Ball& ball : m_balls)
         {
-            if (m_pockets.isBallPotted(ball))
+            ball.update(m_deltaTime);
+            if (!ball.isPotted())
             {
-                m_score.update(ball);
-                m_soundPotting.play();
+                if (m_pockets.isBallPotted(ball))
+                {
+                    m_score.update(ball);
+                    m_soundPotting.play();
+                }
+                else if (ball.checkCollisionWithBorder())
+                {
+                    m_soundCollision.play();
+                }
             }
-            else if (ball.checkCollisionWithBorder())
-                m_soundCollision.play();
         }
-    }
-
-    if (!m_isEquilibrium)
-    {
         for (size_t i = 0; i < Spec::BALLS_TOTAL; i++)
         {
             for (size_t j = i + 1; j < Spec::BALLS_TOTAL; j++)
             {
                 if (m_balls[i].checkCollisionWithBall(m_balls[j]))
+                {
                     m_soundCollision.play();
+                }
             }
         }
-    }
-
-    m_isEquilibrium = checkEquilibrium();
-
-    if (m_isCharging)
+        if (checkEquilibrium())
+        {
+            m_state = P1toMove;
+        }
+        break;
+    case P1Aims:
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
-
+    case P1toMove:
+    default:
+        break;
+    }
     m_fpsCounter.update(m_deltaTime);
 }
 
 bool Game::checkEquilibrium()
 {
     for (const Ball& ball : m_balls)
-        if (!ball.isPotted()
-            && !ball.isAnimationPlaying()
-            && ball.getVelocity() != sf::Vector2f(0.0f, 0.0f))
+    {
+        if (ball.isAnimationPlaying() || (!ball.isPotted() && ball.getVelocity() != sf::Vector2f(0.0f, 0.0f)))
+        {
             return false;
+        }
+    }
+
     return true;
 }
 
@@ -213,11 +233,35 @@ void Game::draw()
     m_table.draw(m_window);
     m_pockets.draw(m_window);
     for (const Ball& ball : m_balls)
-    ball.draw(m_window);
-    if (m_isCharging)
+    {
+        ball.draw(m_window);
+    }
+    if (m_state == P1Aims)
+    {
         m_trajectory.draw(m_window);
+    }
     m_score.draw(m_window);
     if (m_isFpsShown)
+    {
         m_fpsCounter.draw(m_window);
+    }
+    m_window.draw(m_phase);
     m_window.display();
+}
+
+const char* Game::getStateAsString()
+{
+    switch (m_state)
+    {
+    case None:
+        return "none";
+    case P1toMove:
+        return "P1 to move";
+    case P1Aims:
+        return "P1 aiming";
+    case P1Motion:
+        return "P1";
+    default:
+        return "N/A";
+    }
 }

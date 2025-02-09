@@ -11,20 +11,29 @@
 
 class Game
 {
+private:
+    enum GameState : std::uint8_t
+    {
+        None = 0,
+        P1toMove,
+        P1Aims,
+        P1Motion
+    };
 public:
     explicit Game(const char* path);
     void run();
 private:
+    void initializeBalls();
     bool isRunning() { return m_window.isOpen(); }
     void gameLoop();
-    void initializeBalls();
+    void update();
+    void draw();
     void handleEvent(const sf::Event& event);
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleKeyPressed(const sf::Event& event);
-    void update();
     bool checkEquilibrium();
-    void draw();
+    const char* getStateAsString();
 private:
     // game objects
     sf::RenderWindow m_window;
@@ -35,6 +44,7 @@ private:
     // UI
     FPSCounter m_fpsCounter;
     Score m_score;
+    sf::Text m_phase;
     // resources
     std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCue;
@@ -48,7 +58,6 @@ private:
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;
     // states
+    GameState m_state = None;
     bool m_isFpsShown = true;
-    bool m_isCharging = false;
-    bool m_isEquilibrium = false;
 };
