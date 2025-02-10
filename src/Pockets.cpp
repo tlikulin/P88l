@@ -23,7 +23,7 @@ bool Pockets::isBallPotted(Ball& ball)
     for (size_t i = 0; i < Spec::NUM_POCKETS; i++)
     {
         sf::Vector2f displacement = m_pockets[i].getPosition() - ball.getPosition();
-        if (std::hypot(displacement.x, displacement.y) < Spec::POCKET_THRESHOLD)
+        if (Spec::hypot(displacement) < Spec::POCKET_THRESHOLD)
         {
             ball.pot(m_pockets[i].getPosition());
             return true;

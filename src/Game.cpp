@@ -2,6 +2,7 @@
 #include "Spec.hpp"
 #include <cmath>
 #include <random>
+#include <iostream>
 
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
@@ -20,7 +21,7 @@ Game::Game(const char* path) :
     m_soundCollision.setBuffer(m_bufferCollision);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
     m_soundPotting.setBuffer(m_bufferPotting);
-    m_soundPotting.setVolume(80.0f);
+    m_soundPotting.setVolume(40.0f);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -141,9 +142,9 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
         {
             sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
             chargeVelocity *= 3.5f;
-            if (std::hypot(chargeVelocity.x, chargeVelocity.y) > Spec::MAX_CHARGE_VELOCITY)
+            if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_VELOCITY)
             {
-                chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / std::hypot(chargeVelocity.x, chargeVelocity.y);
+                chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(chargeVelocity);
             }
             m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
             m_soundCue.play();
@@ -203,12 +204,29 @@ void Game::update()
         }
         if (checkEquilibrium())
         {
+            if (m_balls[Spec::CUE_INDEX].isPotted())
+            {
+                if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+                {
+                    std::cout << "YOU LOST!\n";
+                }
+                else
+                {
+                    replaceBall(m_balls[Spec::CUE_INDEX]);
+                    m_soundCue.play();
+                }
+            }
+            else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+            {
+                replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
+                m_soundCue.play();
+            }
             m_state = P1toMove;
         }
         break;
     case P1Aiming:
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
-    case P1toMove:
+        break;
     default:
         break;
     }
@@ -254,8 +272,6 @@ const char* Game::getStateAsString()
 {
     switch (m_state)
     {
-    case None:
-        return "none";
     case P1toMove:
         return "P1 to move";
     case P1Aiming:
@@ -265,4 +281,33 @@ const char* Game::getStateAsString()
     default:
         return "N/A";
     }
+}
+
+void Game::replaceBall(Ball& ball)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution distrib(0, 15);
+    
+    int ind;
+    do {
+        ind = distrib(gen);
+    } while(!canPlaceBall(Spec::REPLACEMENT_POSITIONS[ind]));
+
+
+    ball.replace(Spec::REPLACEMENT_POSITIONS[ind]);
+}
+
+bool Game::canPlaceBall(const sf::Vector2f& pos)
+{
+    for (const Ball& ball : m_balls)
+    {
+        float distance = Spec::hypot(ball.getPosition() - pos);
+        if (distance <= 2 * Spec::BALL_RADIUS)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

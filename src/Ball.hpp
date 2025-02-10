@@ -23,10 +23,13 @@ public:
 
     bool checkCollisionWithBall(Ball& other);
     bool checkCollisionWithBorder();
+    void pot(const sf::Vector2f& pocket);
+    void replace(const sf::Vector2f& pos);
     bool isWithinBall(float x, float y);
     bool isWithinBall(const sf::Vector2f& pos);
-    void pot(const sf::Vector2f& pocket);
+
     void setScoredPosition(const sf::Vector2f& pos) { m_scoredPosition = pos; }
+    void setPosition(const sf::Vector2f& pos) { m_body.setPosition(pos); }
 
     void scaleVelocity(float xScale, float yScale);
     void setVelocity(sf::Vector2f velocity) { m_velocity = velocity; }

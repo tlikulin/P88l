@@ -127,7 +127,7 @@ void Trajectory::updateReflection()
 void Trajectory::updateExtra1()
 {
     sf::Vector2f shift = m_segment1[1].position - m_segment1[0].position;
-    shift /= std::hypot(shift.x, shift.y);
+    shift /= Spec::hypot(shift);
     std::swap(shift.x, shift.y);
     shift.y *= -1.0f;
     shift *= Spec::BALL_RADIUS;
@@ -141,7 +141,7 @@ void Trajectory::updateExtra1()
 void Trajectory::updateExtra2()
 {
     sf::Vector2f shift = m_segment2[1].position - m_segment2[0].position;
-    shift /= std::hypot(shift.x, shift.y);
+    shift /= Spec::hypot(shift);
     std::swap(shift.x, shift.y);
     shift.y *= -1.0f;
     shift *= Spec::BALL_RADIUS;

@@ -63,7 +63,7 @@ void Ball::update(float deltaTime)
         return;
     }
 
-    float magnitude = std::hypot(m_velocity.x, m_velocity.y);
+    float magnitude = Spec::hypot(m_velocity);
     float coef = Spec::FRICTION_COEF + Spec::SPEED_FRICTION_COEF * magnitude * magnitude;
 
     if (magnitude < coef * deltaTime)
@@ -114,7 +114,7 @@ bool Ball::checkCollisionWithBall(Ball& other)
         return false;
 
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
-    const float intersection = 2 * Spec::BALL_RADIUS - std::hypot(vec1to2.x, vec1to2.y);
+    const float intersection = 2 * Spec::BALL_RADIUS - Spec::hypot(vec1to2);
 
     if (intersection <= 0.0f)
     {
@@ -123,7 +123,7 @@ bool Ball::checkCollisionWithBall(Ball& other)
 
     sf::Vector2f otherVelocity = other.getVelocity();
 
-    vec1to2 /= std::hypot(vec1to2.x, vec1to2.y); //now unit vector
+    vec1to2 /= Spec::hypot(vec1to2); //now unit vector
 
     float angle = vec1to2.y > 0 ? std::acos(vec1to2.x) : -std::acos(vec1to2.x);
 
@@ -177,7 +177,7 @@ bool Ball::isWithinBall(float x, float y)
 }
 bool Ball::isWithinBall(const sf::Vector2f& pos)
 {
-    return std::hypot(pos.x - getPosition().x, pos.y - getPosition().y) <= Spec::BALL_RADIUS;
+    return Spec::hypot(pos - getPosition()) <= Spec::BALL_RADIUS;
 }
 
 void Ball::pot(const sf::Vector2f& pocket)
@@ -186,4 +186,15 @@ void Ball::pot(const sf::Vector2f& pocket)
     m_velocity = {0.0f, 0.0f};
     m_animationDuration = Spec::POTTING_ANIM_DURATION;
     m_animationShift = pocket - m_body.getPosition();
+}
+
+void Ball::replace(const sf::Vector2f& pos)
+{
+    m_animationDuration = 0.0f;
+    m_scoredPosition *= 0.0f;
+    m_body.setRadius(Spec::BALL_RADIUS);
+    m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
+    
+    m_body.setPosition(pos);
+    m_isPotted = false;
 }

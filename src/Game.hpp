@@ -34,6 +34,8 @@ private:
     void handleKeyPressed(const sf::Event& event);
     bool checkEquilibrium();
     const char* getStateAsString();
+    void replaceBall(Ball& ball);
+    bool canPlaceBall(const sf::Vector2f& pos);
 private:
     // game objects
     sf::RenderWindow m_window;

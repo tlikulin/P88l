@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <array>
 #include <numbers>
+#include <cmath>
 
 namespace Spec
 {
@@ -34,19 +35,40 @@ namespace Spec
     inline constexpr size_t BALLS_PER_PLAYER            = 7;
     inline constexpr size_t BALLS_TOTAL                 = 2 * BALLS_PER_PLAYER + 2;
     inline constexpr float CUE_POS_X                    = TABLE_LEFT + 0.75f * TABLE_WIDTH;
-    inline constexpr float CUE_POS_Y                    = TABLE_TOP + 0.5f * TABLE_HEIGHT;
     inline constexpr float CUE_POS_Y_MIN                = TABLE_TOP + 0.3f * TABLE_HEIGHT;
     inline constexpr float CUE_POS_Y_MAX                = TABLE_TOP + 0.7f * TABLE_HEIGHT;
     inline const sf::Vector2f BALL_TOPLEFT_POS          {TABLE_LEFT + 0.25f * TABLE_WIDTH, TABLE_TOP + 0.5f * TABLE_HEIGHT - 4.0f * BALL_RADIUS};
+    //replacement
+    inline constexpr size_t NUM_REPLACEMENT_POSITIONS   = 16;
+    const std::array<sf::Vector2f, NUM_REPLACEMENT_POSITIONS> REPLACEMENT_POSITIONS{{
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT}
+    }};
     //Pockets
     inline constexpr size_t NUM_POCKETS                 = 6;
     inline constexpr float POCKETS_OFFSET               = 5.0f;
-    inline const std::array<sf::Vector2f, NUM_POCKETS> POCKETS_POS{{{TABLE_LEFT + POCKETS_OFFSET, TABLE_TOP + POCKETS_OFFSET}, 
-                                                                    {TABLE_LEFT + POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET},
-                                                                    {(TABLE_LEFT + TABLE_RIGHT)/2.0f, TABLE_TOP - POCKETS_OFFSET},
-                                                                    {(TABLE_LEFT + TABLE_RIGHT)/2.0f, TABLE_BOTTOM + POCKETS_OFFSET},
-                                                                    {TABLE_RIGHT - POCKETS_OFFSET, TABLE_TOP + POCKETS_OFFSET},
-                                                                    {TABLE_RIGHT - POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET} }};
+    inline const std::array<sf::Vector2f, NUM_POCKETS> POCKETS_POS{{
+        {TABLE_LEFT + POCKETS_OFFSET, TABLE_TOP + POCKETS_OFFSET}, 
+        {TABLE_LEFT + POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET},
+        {(TABLE_LEFT + TABLE_RIGHT)/2.0f, TABLE_TOP - POCKETS_OFFSET},
+        {(TABLE_LEFT + TABLE_RIGHT)/2.0f, TABLE_BOTTOM + POCKETS_OFFSET},
+        {TABLE_RIGHT - POCKETS_OFFSET, TABLE_TOP + POCKETS_OFFSET},
+        {TABLE_RIGHT - POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET} 
+    }};
     inline constexpr float POCKET_RADIUS                = 20.0f;
     inline constexpr float POCKET_THRESHOLD             = 0.85f * (Spec::BALL_RADIUS + Spec::POCKET_RADIUS);
     // UI
@@ -69,4 +91,9 @@ namespace Spec
     inline const std::filesystem::path PATH_TO_COLLISION_SOUND  = AUDIO_DIR / "ball_collision.wav";
     inline const std::filesystem::path PATH_TO_POTTING_SOUND    = AUDIO_DIR / "potting.wav";
     inline const std::filesystem::path PATH_TO_FONT             = FONTS_DIR / "MesloLGS NF Regular.ttf";
+
+    inline float hypot(const sf::Vector2f& vec)
+    {
+        return std::hypot(vec.x, vec.y);
+    }
 }
