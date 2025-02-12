@@ -11,7 +11,6 @@ namespace Spec
     inline constexpr unsigned int SCREEN_WIDTH          = 1300u;
     inline constexpr unsigned int SCREEN_HEIGHT         = 800u;
     inline constexpr const char* const TITLE            = "P88l";
-    inline constexpr const char* const TITLE_CHARGING   = "P88l - charging";
     //Table
     inline constexpr float TABLE_TOP                    = 150.0f;
     inline constexpr float TABLE_LEFT                   = 50.0f;
@@ -70,14 +69,14 @@ namespace Spec
         {TABLE_RIGHT - POCKETS_OFFSET, TABLE_BOTTOM - POCKETS_OFFSET} 
     }};
     inline constexpr float POCKET_RADIUS                = 20.0f;
-    inline constexpr float POCKET_THRESHOLD             = 0.85f * (Spec::BALL_RADIUS + Spec::POCKET_RADIUS);
+    inline constexpr float POCKET_THRESHOLD             = 0.9f * (Spec::BALL_RADIUS + Spec::POCKET_RADIUS);
     // UI
     inline constexpr unsigned int SCORE_CHAR_SIZE       = 40u;
-    inline const sf::Vector2f SCORE1_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) - 60.0f, 15.0f};
-    inline const sf::Vector2f SCORE_SEP_POS             {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4), 10.0f}; 
-    inline const sf::Vector2f SCORE2_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) + 60.0f, 15.0f}; 
+    inline const sf::Vector2f SCORE1_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) - 60.0f, 25.0f};
+    inline const sf::Vector2f SCORE_SEP_POS             {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4), 20.0f}; 
+    inline const sf::Vector2f SCORE2_POS                {static_cast<float>(SCREEN_WIDTH / 2 - SCORE_CHAR_SIZE / 4) + 60.0f, 25.0f}; 
     //Colors
-    inline const sf::Color BG_COLOR                     {0xa8a8a8ff};
+    inline const sf::Color BG_COLOR                     {0xb8b8b8ff};
     inline const sf::Color TABLE_COLOR                  {0x62a66fff};
     inline const sf::Color TABLE_RAIL_COLOR             {0x7b4336ff};
     inline const sf::Color EIGHTBALL_COLOR              {0x010414ff};

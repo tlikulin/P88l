@@ -7,7 +7,8 @@
 #include "Table.hpp"
 #include "Pockets.hpp"
 #include "FPSCounter.hpp"
-#include "Score.hpp"
+#include "UI.hpp"
+#include "Menu.hpp"
 
 class Game
 {
@@ -18,9 +19,10 @@ private:
     enum GameState : std::uint8_t
     {
         None = 0,
-        P1toMove,
-        P1Aiming,
-        P1Motion
+        InMenu,
+        PlayerToMove,
+        PlayerAiming,
+        PlayerMotion,
     };
 private:
     void initializeBalls();
@@ -32,10 +34,13 @@ private:
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleKeyPressed(const sf::Event& event);
+    void nextTurn();
     bool checkEquilibrium();
     const char* getStateAsString();
+    const char* getPlayerName(unsigned char player);
     void replaceBall(Ball& ball);
     bool canPlaceBall(const sf::Vector2f& pos);
+    void newGame();
 private:
     // game objects
     sf::RenderWindow m_window;
@@ -45,8 +50,8 @@ private:
     Trajectory m_trajectory;
     // UI
     FPSCounter m_fpsCounter;
-    Score m_score;
-    sf::Text m_phase;
+    UI m_ui;
+    Menu m_menu;
     // resources
     std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCue;
@@ -61,5 +66,8 @@ private:
     float m_deltaTime = 0.0f;
     // states
     GameState m_state = None;
-    bool m_isFpsShown = true;
+    unsigned char m_activePlayer = 1;
+    bool m_wasP1BallPotted = false;
+    bool m_wasP2BallPotted = false;
+    bool m_isFpsShown = false;
 };
