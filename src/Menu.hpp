@@ -13,6 +13,7 @@ private:
     sf::Text m_title;
     sf::Text m_by;
     sf::Text m_message;
+    sf::Text m_again;
     sf::RectangleShape m_button1;
     sf::Text m_button1Text;
     sf::RectangleShape m_button2;

@@ -17,6 +17,11 @@ Menu::Menu()
     m_message.setPosition(420.0f, 130.0f);
     m_message.setFillColor(sf::Color::Black);
 
+    m_again.setCharacterSize(30);
+    m_again.setString("Play again?");
+    m_again.setPosition(540.0f, 290.0f);
+    m_again.setFillColor(sf::Color::Transparent);
+
     m_button1.setPosition(320.0f, 350.0f);
     m_button1.setSize(sf::Vector2f{240.0f, 80.0f});
     m_button1.setFillColor(sf::Color::White);
@@ -45,7 +50,7 @@ void Menu::setFont(const sf::Font& font)
     m_title.setFont(font);
     m_by.setFont(font);
     m_message.setFont(font);
-    m_button1Text.setFont(font);
+    m_again.setFont(font);    m_button1Text.setFont(font);
     m_button2Text.setFont(font);
 }
 
@@ -54,6 +59,7 @@ void Menu::draw(sf::RenderWindow& window)
     window.draw(m_title);
     window.draw(m_by);
     window.draw(m_message);
+    window.draw(m_again);
     window.draw(m_button1);
     window.draw(m_button1Text);
     window.draw(m_button2);
@@ -75,4 +81,5 @@ void Menu::setMessage(const sf::String& message, const sf::Color& color)
     m_message.setString(message);
     m_message.setFillColor(color);
     m_message.setPosition(500.0f, 130.0f);
+    m_again.setFillColor(sf::Color::Black);
 }
