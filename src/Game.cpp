@@ -257,20 +257,21 @@ void Game::nextTurn()
     if (m_balls[Spec::CUE_INDEX].isPotted() && m_balls[Spec::EIGHTBALL_INDEX].isPotted())
     {
         m_state = InMenu;
-        m_menu.setMessage(std::string{getPlayerName(3 - m_activePlayer)} + "won!\n(by fatal foul)", 
+        switchPlayer();
+        m_menu.setMessage(std::string{getPlayerName(m_activePlayer)} + "won!\n(by fatal foul)", 
                           m_activePlayer == 1 ? Spec::PLAYER2_COLOR : Spec::PLAYER1_COLOR);
     } 
     else if (m_balls[Spec::CUE_INDEX].isPotted())
     {
         replaceBall(m_balls[Spec::CUE_INDEX]);
         m_soundCue.play();
-        m_activePlayer = 3 - m_activePlayer;
+        switchPlayer();
     }
     else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
     {
         replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
         m_soundCue.play();
-        m_activePlayer = 3 - m_activePlayer;
+        switchPlayer();
     }
     else if (m_activePlayer == 1 && m_wasP1BallPotted && !m_wasP2BallPotted)
     {
@@ -282,7 +283,7 @@ void Game::nextTurn()
     }
     else
     {
-        m_activePlayer = 3 - m_activePlayer;
+        switchPlayer();
     }
 
     m_state = PlayerToMove;
@@ -396,4 +397,20 @@ void Game::newGame()
     m_state = PlayerToMove;
     m_activePlayer = 1;
     m_soundCue.play();
+}
+
+void Game::switchPlayer()
+{
+    switch (m_activePlayer)
+    {
+    case 1:
+        m_activePlayer = 2;
+        return;
+    case 2:
+        m_activePlayer = 1;
+        return;
+    default:
+        m_activePlayer = 0;
+        return;
+    }    
 }

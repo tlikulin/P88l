@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <vector>
@@ -41,6 +43,7 @@ private:
     void replaceBall(Ball& ball);
     bool canPlaceBall(const sf::Vector2f& pos);
     void newGame();
+    void switchPlayer();
 private:
     // game objects
     sf::RenderWindow m_window;

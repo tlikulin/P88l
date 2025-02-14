@@ -34,14 +34,14 @@ Menu::Menu()
     m_button1Text.setFillColor(sf::Color::Black);
 
     m_button2.setPosition(700.0f, 350.0f);
-    m_button2.setSize(sf::Vector2f{310.0f, 80.0f});
+    m_button2.setSize(sf::Vector2f{260.0f, 80.0f});
     m_button2.setFillColor(sf::Color::White);
     m_button2.setOutlineColor(sf::Color::Black);
     m_button2.setOutlineThickness(1.2f);
 
     m_button2Text.setCharacterSize(30);
-    m_button2Text.setString("Versus Computer");
-    m_button2Text.setPosition(722.0f, 370.0f);
+    m_button2Text.setString("Against Bot");
+    m_button2Text.setPosition(732.0f, 370.0f);
     m_button2Text.setFillColor(sf::Color::Black);
 }
 
