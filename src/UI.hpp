@@ -10,7 +10,7 @@ public:
     UI();
     void setFont(const sf::Font& font);
     void setString(unsigned char activePlayer, const sf::String& state);
-    [[nodiscard]] unsigned char update(Ball& ball);
+    [[nodiscard]] bool update(Ball& ball);
     void draw(sf::RenderWindow& window);
     void reset();
 private:

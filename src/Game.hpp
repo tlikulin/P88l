@@ -39,7 +39,7 @@ private:
     void nextTurn();
     bool checkEquilibrium();
     const char* getStateAsString();
-    const char* getPlayerName(unsigned char player);
+    const char* getActivePlayerName();
     void replaceBall(Ball& ball);
     bool canPlaceBall(const sf::Vector2f& pos);
     void newGame();
@@ -70,6 +70,7 @@ private:
     // states
     GameState m_state = None;
     unsigned char m_activePlayer = 1;
+    unsigned char m_botPlaysAs = 0;
     bool m_wasP1BallPotted = false;
     bool m_wasP2BallPotted = false;
     bool m_isFpsShown = false;

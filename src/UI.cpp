@@ -104,7 +104,7 @@ void UI::setString(unsigned char activePlayer, const sf::String& state)
     }
 }
 
-unsigned char UI::update(Ball& ball)
+bool UI::update(Ball& ball)
 {
     switch (ball.getType())
     {
@@ -112,31 +112,28 @@ unsigned char UI::update(Ball& ball)
         ball.setScoredPosition(m_ballSlots[m_player1].getPosition());
         m_player1++;
         m_textPlayer1Score.setString(std::to_string(m_player1));
-        return 0;
+        return false;
     case Ball::Player2:
         ball.setScoredPosition(m_ballSlots[Spec::BALLS_PER_PLAYER + m_player2].getPosition());
         m_player2++;
         m_textPlayer2Score.setString(std::to_string(m_player2));
-        return 0;
+        return false;
     case Ball::Eightball:
         ball.setScoredPosition(m_ballSlots[2 * Spec::BALLS_PER_PLAYER].getPosition());
-        if (m_activePlayer == 1 && m_player1 == Spec::BALLS_PER_PLAYER)
+        if ((m_activePlayer == 1 && m_player1 == Spec::BALLS_PER_PLAYER)
+         || (m_activePlayer == 2 && m_player2 == Spec::BALLS_PER_PLAYER))
         {
-            return 1;
-        }
-        else if (m_activePlayer == 2 && m_player2 == Spec::BALLS_PER_PLAYER)
-        {
-            return 2;
+            return true;
         }
         else
         {
-            return 0;
+            return false;
         }
     case Ball::Cue:
         ball.setScoredPosition(m_ballSlots[2 * Spec::BALLS_PER_PLAYER + 1].getPosition());
-        return 0;
+        return false;
     default:
-        return 0;
+        return false;
     }
 }
 

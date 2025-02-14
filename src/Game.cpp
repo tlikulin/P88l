@@ -2,7 +2,6 @@
 #include "Spec.hpp"
 #include <cmath>
 #include <random>
-#include <iostream>
 
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
@@ -137,13 +136,15 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
              && event.mouseButton.button == sf::Mouse::Left
              && m_menu.isWithinButton1(mousePos))
     {
+        m_botPlaysAs = 0;
         newGame();
     }
     else if (m_state == InMenu
              && event.mouseButton.button == sf::Mouse::Left
              && m_menu.isWithinButton2(mousePos))
     {
-        std::cout << "Clicked 2 " << std::flush;
+        m_botPlaysAs = 1;
+        newGame();
     }    
 }
 
@@ -206,18 +207,12 @@ void Game::update()
                     }
 
                     m_soundPotting.play();
-                    switch (m_ui.update(ball))
+                    if(m_ui.update(ball))
                     {
-                    case 1:
-                        m_menu.setMessage("Player 1 won!\n(by potting)", Spec::PLAYER1_COLOR);
+                        m_menu.setMessage(sf::String{getActivePlayerName()} + " won!\n(by potting)",
+                                            m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
                         m_state = InMenu;
                         return;
-                    case 2:
-                        m_menu.setMessage("Player 2 won!\n(by potting)", Spec::PLAYER2_COLOR);
-                        m_state = InMenu;
-                        return;
-                    default:
-                        break;
                     }
                 }
                 else if (ball.checkCollisionWithBorder())
@@ -248,7 +243,7 @@ void Game::update()
         break;
     }
 
-    m_ui.setString(m_activePlayer, std::string{getPlayerName(m_activePlayer)} + '\n' + getStateAsString());
+    m_ui.setString(m_activePlayer, std::string{getActivePlayerName()} + '\n' + getStateAsString());
     m_fpsCounter.update(m_deltaTime);
 }
 
@@ -258,8 +253,8 @@ void Game::nextTurn()
     {
         m_state = InMenu;
         switchPlayer();
-        m_menu.setMessage(std::string{getPlayerName(m_activePlayer)} + "won!\n(by fatal foul)", 
-                          m_activePlayer == 1 ? Spec::PLAYER2_COLOR : Spec::PLAYER1_COLOR);
+        m_menu.setMessage(sf::String{getActivePlayerName()} + "won!\n(by fatal foul)", 
+                          m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
     } 
     else if (m_balls[Spec::CUE_INDEX].isPotted())
     {
@@ -348,14 +343,36 @@ const char* Game::getStateAsString()
     }
 }
 
-const char* Game::getPlayerName(unsigned char player)
+const char* Game::getActivePlayerName()
 {
-    switch (player)
+    switch (m_activePlayer)
     {
     case 1:
-        return "Player 1";
+        if (m_botPlaysAs == 1)
+        {
+            return "Bot";
+        }
+        else if (m_botPlaysAs == 2)
+        {
+            return "You";
+        }
+        else
+        {
+            return "Player 1";
+        }
     case 2:
-        return "Player 2";
+        if (m_botPlaysAs == 2)
+        {
+            return "Bot";
+        }
+        else if (m_botPlaysAs == 1)
+        {
+            return "You";
+        }
+        else
+        {
+            return "Player 2";
+        }
     default:
         return "???";
     }
