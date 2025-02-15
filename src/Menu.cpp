@@ -22,7 +22,7 @@ Menu::Menu()
     m_again.setPosition(540.0f, 290.0f);
     m_again.setFillColor(sf::Color::Transparent);
 
-    m_button1.setPosition(320.0f, 350.0f);
+    m_button1.setPosition(340.0f, 350.0f);
     m_button1.setSize(sf::Vector2f{240.0f, 80.0f});
     m_button1.setFillColor(sf::Color::White);
     m_button1.setOutlineColor(sf::Color::Black);
@@ -30,7 +30,7 @@ Menu::Menu()
 
     m_button1Text.setCharacterSize(30);
     m_button1Text.setString("2 Players");
-    m_button1Text.setPosition(358.0f, 370.0f);
+    m_button1Text.setPosition(378.0f, 370.0f);
     m_button1Text.setFillColor(sf::Color::Black);
 
     m_button2.setPosition(700.0f, 350.0f);

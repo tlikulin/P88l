@@ -24,6 +24,7 @@ private:
         InMenu,
         PlayerToMove,
         PlayerAiming,
+        BotAiming,
         PlayerMotion,
     };
 private:
@@ -44,6 +45,8 @@ private:
     bool canPlaceBall(const sf::Vector2f& pos);
     void newGame();
     void switchPlayer();
+    sf::Vector2f botFindClosestBall();
+    void launchCueBall(const sf::Vector2f& mousePos);
 private:
     // game objects
     sf::RenderWindow m_window;
@@ -74,4 +77,7 @@ private:
     bool m_wasP1BallPotted = false;
     bool m_wasP2BallPotted = false;
     bool m_isFpsShown = false;
+    sf::Vector2f m_botMousePos;
+    sf::Vector2f m_botMouseShift;
+    float m_botAimingProgress = 0.0f;
 };

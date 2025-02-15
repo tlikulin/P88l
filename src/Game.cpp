@@ -3,6 +3,11 @@
 #include <cmath>
 #include <random>
 
+namespace
+{
+    float botAimingTime = 1.5f;
+}
+
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
     m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()},
@@ -143,7 +148,7 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
              && event.mouseButton.button == sf::Mouse::Left
              && m_menu.isWithinButton2(mousePos))
     {
-        m_botPlaysAs = 1;
+        m_botPlaysAs = 2;
         newGame();
     }    
 }
@@ -154,17 +159,7 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
     {
         if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
         {
-            sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
-            chargeVelocity *= 3.5f;
-            if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_VELOCITY)
-            {
-                chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(chargeVelocity);
-            }
-            m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
-            m_soundCue.play();
-            m_state = PlayerMotion;
-            m_wasP1BallPotted = false;
-            m_wasP2BallPotted = false;
+            launchCueBall(mousePos);
         }
         else
         {
@@ -238,6 +233,31 @@ void Game::update()
         break;
     case PlayerAiming:
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
+        break;
+    case BotAiming:
+        m_botAimingProgress += m_deltaTime;
+        if (m_botAimingProgress >= botAimingTime)
+        {
+            m_botAimingProgress = 0.0f;
+            launchCueBall(m_botMousePos);
+            m_state = PlayerMotion;
+        }
+        else
+        {
+            m_botMousePos += m_botMouseShift * m_deltaTime / botAimingTime;
+            m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
+        }
+        break;
+    case PlayerToMove:
+        if (m_activePlayer == m_botPlaysAs)
+        {
+            m_botMousePos = m_balls[Spec::CUE_INDEX].getPosition();
+            m_botMouseShift = m_balls[Spec::CUE_INDEX].getPosition() - botFindClosestBall();
+            m_botMouseShift *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(m_botMouseShift);
+            m_botAimingProgress = 0.0f;
+            m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
+            m_state = BotAiming;
+        }
         break;
     default:
         break;
@@ -313,7 +333,7 @@ void Game::draw()
         {
             ball.draw(m_window);
         }
-        if (m_state == PlayerAiming)
+        if (m_state == PlayerAiming || m_state == BotAiming)
         {
             m_trajectory.draw(m_window);
         }
@@ -335,6 +355,7 @@ const char* Game::getStateAsString()
     case PlayerToMove:
         return "to move";
     case PlayerAiming:
+    case BotAiming:
         return "aiming";
     case PlayerMotion:
         return "";
@@ -430,4 +451,37 @@ void Game::switchPlayer()
         m_activePlayer = 0;
         return;
     }    
+}
+
+sf::Vector2f Game::botFindClosestBall()
+{
+    sf::Vector2f closest = {10'000.f, 10'000.0f};
+    for (const Ball& ball : m_balls)
+    {
+        if (((m_botPlaysAs == 1 && ball.getType() == Ball::Player1) || (m_botPlaysAs == 2 && ball.getType() == Ball::Player2)) 
+            && !ball.isPotted() 
+            && Spec::hypot(ball.getPosition() - m_balls[Spec::CUE_INDEX].getPosition()) < Spec::hypot(closest - m_balls[Spec::CUE_INDEX].getPosition()))
+        {
+            closest = ball.getPosition();
+        }
+    }
+    if (closest == sf::Vector2f{10'000.f, 10'000.0f})
+    {
+        closest = m_balls[Spec::EIGHTBALL_INDEX].getPosition();
+    }
+    return closest;
+}
+
+void Game::launchCueBall(const sf::Vector2f& mousePos)
+{
+    sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
+    if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_VELOCITY)
+    {
+        chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(chargeVelocity);
+    }
+    m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
+    m_soundCue.play();
+    m_state = PlayerMotion;
+    m_wasP1BallPotted = false;
+    m_wasP2BallPotted = false;
 }
