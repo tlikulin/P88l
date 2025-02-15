@@ -16,13 +16,22 @@ Trajectory::Trajectory(TrajectoryMode mode) :
 
 // Calculates the 2 segments (and co-parts) of trajectory with reflection off the wall if needed
 // Basically checks which wall the trajectory crosses, if any, and reflects in it
-void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePosition)
+void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos)
 {
     if (m_mode == None)
         return;
 
+    if (Spec::CHARGE_VELOCITY_COEF * Spec::hypot(chargeStart - mousePos) >= Spec::MAX_CHARGE_VELOCITY)
+    {
+        setColor(sf::Color::Red);
+    }
+    else
+    {
+        setColor(sf::Color::White);
+    }
+
     m_segment1[0].position = chargeStart;
-    m_segment1[1].position = m_segment1[0].position + 2.5f * (chargeStart - mousePosition);
+    m_segment1[1].position = m_segment1[0].position + Spec::CHARGE_VELOCITY_COEF * (chargeStart - mousePos); //////// HERE
 
     updateReflection();
 
@@ -38,7 +47,6 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
         if (m_isExtensionNeeded)
             updateExtra2();
     }
-
 }
 
 void Trajectory::updateReflection()
@@ -201,4 +209,22 @@ void Trajectory::cycleMode()
         m_mode = None;
         break;
     }
+}
+
+void Trajectory::setColor(const sf::Color& color)
+{
+    m_segment1[0].color = color;
+    m_segment1[1].color = color;
+    m_segment1L[0].color = color;
+    m_segment1L[1].color = color;
+    m_segment1R[0].color = color;
+    m_segment1R[1].color = color;
+    m_segment2[0].color = color;
+    m_segment2[1].color = color;
+    m_segment2L[0].color = color;
+    m_segment2L[1].color = color;
+    m_segment2R[0].color = color;
+    m_segment2R[1].color = color;
+    m_ballPrev1.setOutlineColor(color);
+    m_ballPrev2.setOutlineColor(color);
 }

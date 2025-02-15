@@ -4,6 +4,8 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <filesystem>
+#include <random>
+#include <memory>
 #include "Ball.hpp"
 #include "Trajectory.hpp"
 #include "Table.hpp"
@@ -80,4 +82,5 @@ private:
     sf::Vector2f m_botMousePos;
     sf::Vector2f m_botMouseShift;
     float m_botAimingProgress = 0.0f;
+    std::unique_ptr<std::mt19937> m_rng = std::make_unique<std::mt19937>(std::random_device{}());
 };

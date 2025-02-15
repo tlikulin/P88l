@@ -1,7 +1,7 @@
 #include "Game.hpp"
 #include "Spec.hpp"
 #include <cmath>
-#include <random>
+
 
 namespace
 {
@@ -41,12 +41,10 @@ void Game::initializeBalls()
         m_balls.clear();
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution distrib(0, 1);
-    std::uniform_real_distribution<float> rdistrib(Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX);
+    std::uniform_int_distribution distrib{0, 1};
+    std::uniform_real_distribution<float> rdistrib{Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX};
 
-    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(gen)}, Ball::Cue);
+    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
     size_t player2Left = Spec::BALLS_PER_PLAYER;
@@ -63,7 +61,7 @@ void Game::initializeBalls()
         }
         else
         {
-            if (player2Left == 0 || (player1Left > 0 && distrib(gen)))
+            if (player2Left == 0 || (player1Left > 0 && distrib(*m_rng)))
             {
                 type = Ball::Player1;
                 player1Left--;
@@ -148,7 +146,8 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
              && event.mouseButton.button == sf::Mouse::Left
              && m_menu.isWithinButton2(mousePos))
     {
-        m_botPlaysAs = 2;
+        std::uniform_int_distribution<> distrib{1, 2};
+        m_botPlaysAs = distrib(*m_rng);
         newGame();
     }    
 }
@@ -177,6 +176,11 @@ void Game::handleKeyPressed(const sf::Event& event)
     else if (event.key.code == sf::Keyboard::Tilde)
     {
         m_isFpsShown = !m_isFpsShown;
+    }
+    else if (event.key.code == sf::Keyboard::Escape && event.key.shift)
+    {
+        m_menu.setMessage("You abandoned the game.", sf::Color::Black);
+        m_state = InMenu;
     }
 }
 
@@ -251,9 +255,14 @@ void Game::update()
     case PlayerToMove:
         if (m_activePlayer == m_botPlaysAs)
         {
+            std::uniform_real_distribution<float> distribPower{0.65f, 1.2f};
+            std::uniform_real_distribution<float> distribSpread{-7.5f, 7.5f};
+
             m_botMousePos = m_balls[Spec::CUE_INDEX].getPosition();
             m_botMouseShift = m_balls[Spec::CUE_INDEX].getPosition() - botFindClosestBall();
-            m_botMouseShift *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(m_botMouseShift);
+            m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_VELOCITY / Spec::CHARGE_VELOCITY_COEF) / Spec::hypot(m_botMouseShift);
+            m_botMouseShift.x += distribSpread(*m_rng);
+            m_botMouseShift.y += distribSpread(*m_rng);
             m_botAimingProgress = 0.0f;
             m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
             m_state = BotAiming;
@@ -401,13 +410,11 @@ const char* Game::getActivePlayerName()
 
 void Game::replaceBall(Ball& ball)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution distrib(0, 15);
     
     int index;
     do {
-        index = distrib(gen);
+        index = distrib(*m_rng);
     } while(!canPlaceBall(Spec::REPLACEMENT_POSITIONS[index]));
 
 
@@ -475,6 +482,7 @@ sf::Vector2f Game::botFindClosestBall()
 void Game::launchCueBall(const sf::Vector2f& mousePos)
 {
     sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
+    chargeVelocity *= Spec::CHARGE_VELOCITY_COEF;
     if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_VELOCITY)
     {
         chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(chargeVelocity);

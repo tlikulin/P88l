@@ -15,10 +15,11 @@ public:
     }; 
 public:
     explicit Trajectory(TrajectoryMode mode);
-    void update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePosition);
+    void update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos);
     void draw(sf::RenderWindow& window);
     void cycleMode();
 private:
+    void setColor(const sf::Color& color);
     void updateReflection();
     void updateExtra1();
     void updateExtra2();

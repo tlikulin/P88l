@@ -23,6 +23,7 @@ namespace Spec
     //Balls
     inline constexpr float BALL_RADIUS                  = 15.0f;
     inline constexpr float MAX_CHARGE_VELOCITY          = 3000.0f;
+    inline constexpr float CHARGE_VELOCITY_COEF         = 3.0f;
     inline constexpr float FRICTION_COEF                = 80.0f;
     inline constexpr float SPEED_FRICTION_COEF          = 0.00065f;
     inline constexpr float REBOUND_COEF                 = 0.95f;
