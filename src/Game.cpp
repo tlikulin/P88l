@@ -2,7 +2,6 @@
 #include "Spec.hpp"
 #include <cmath>
 
-
 namespace
 {
     float botAimingTime = 1.5f;
@@ -260,7 +259,7 @@ void Game::update()
 
             m_botMousePos = m_balls[Spec::CUE_INDEX].getPosition();
             m_botMouseShift = m_balls[Spec::CUE_INDEX].getPosition() - botFindClosestBall();
-            m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_VELOCITY / Spec::CHARGE_VELOCITY_COEF) / Spec::hypot(m_botMouseShift);
+            m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_SPEED / Spec::CHARGE_VELOCITY_COEF) / Spec::hypot(m_botMouseShift);
             m_botMouseShift.x += distribSpread(*m_rng);
             m_botMouseShift.y += distribSpread(*m_rng);
             m_botAimingProgress = 0.0f;
@@ -481,11 +480,11 @@ sf::Vector2f Game::botFindClosestBall()
 
 void Game::launchCueBall(const sf::Vector2f& mousePos)
 {
-    sf::Vector2f chargeVelocity = m_balls[Spec::CUE_INDEX].getPosition() - mousePos;
-    chargeVelocity *= Spec::CHARGE_VELOCITY_COEF;
-    if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_VELOCITY)
+    sf::Vector2f chargeVelocity = Spec::CHARGE_VELOCITY_COEF * (m_balls[Spec::CUE_INDEX].getPosition() - mousePos);
+    if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_SPEED)
     {
-        chargeVelocity *= Spec::MAX_CHARGE_VELOCITY / Spec::hypot(chargeVelocity);
+        chargeVelocity /= Spec::hypot(chargeVelocity); 
+        chargeVelocity *= Spec::MAX_CHARGE_SPEED;
     }
     m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
     m_soundCue.play();

@@ -6,12 +6,15 @@
 Trajectory::Trajectory(TrajectoryMode mode) :
     m_mode(mode)
 {
-    m_ballPrev1.setRadius(Spec::BALL_RADIUS);
-    m_ballPrev1.setFillColor(sf::Color::Transparent);
-    m_ballPrev1.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
-    m_ballPrev1.setOutlineColor(sf::Color::White);
-    m_ballPrev1.setOutlineThickness(1.0f);
-    m_ballPrev2 = m_ballPrev1;
+    m_ballPreviews[0].setRadius(Spec::BALL_RADIUS);
+    m_ballPreviews[0].setFillColor(sf::Color::Transparent);
+    m_ballPreviews[0].setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
+    m_ballPreviews[0].setOutlineColor(sf::Color::White);
+    m_ballPreviews[0].setOutlineThickness(1.0f);
+    for (size_t i = 1; i < SEGMENTS_MAX; i++)
+    {
+        m_ballPreviews[i] = m_ballPreviews[0];
+    }
 }
 
 // Calculates the 2 segments (and co-parts) of trajectory with reflection off the wall if needed
@@ -21,7 +24,22 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
     if (m_mode == None)
         return;
 
-    if (Spec::CHARGE_VELOCITY_COEF * Spec::hypot(chargeStart - mousePos) >= Spec::MAX_CHARGE_VELOCITY)
+    updateMiddle(chargeStart, mousePos);
+
+    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
+    {   
+        for (size_t i = 0; i < m_numSegmentsNeeded; i++)
+        {
+            m_ballPreviews[i].setPosition(m_segmentsMiddle[2*i+1].position);
+        }
+    }
+
+    if (m_mode == Detailed || m_mode == All)
+    {
+        updateLateral();
+    }
+
+    if (Spec::CHARGE_VELOCITY_COEF * Spec::hypot(chargeStart - mousePos) >= Spec::MAX_CHARGE_SPEED)
     {
         setColor(sf::Color::Red);
     }
@@ -29,135 +47,174 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
     {
         setColor(sf::Color::White);
     }
-
-    m_segment1[0].position = chargeStart;
-    m_segment1[1].position = m_segment1[0].position + Spec::CHARGE_VELOCITY_COEF * (chargeStart - mousePos); //////// HERE
-
-    updateReflection();
-
-    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
-    {   
-        m_ballPrev1.setPosition(m_segment1[1].position);
-        m_ballPrev2.setPosition(m_segment2[1].position);
-    }
-
-    if (m_mode == Detailed || m_mode == All)
-    {
-        updateExtra1();
-        if (m_isExtensionNeeded)
-            updateExtra2();
-    }
 }
 
-void Trajectory::updateReflection()
+void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos)
 {
-    m_isExtensionNeeded = true;
-    float gradient = (m_segment1[0].position.y - m_segment1[1].position.y) / (m_segment1[0].position.x - m_segment1[1].position.x);
+    m_segmentsMiddle[0].position = chargeStart;
+    m_segmentsMiddle[1].position = m_segmentsMiddle[0].position + Spec::CHARGE_VELOCITY_COEF * (chargeStart - mousePos);
+    m_numSegmentsNeeded = 1;
 
-    // the end of trajectory is in the ... third and entersects the ... wall
-    if (m_segment1[1].position.y < (Spec::TABLE_TOP + Spec::BALL_RADIUS)) // top
+    for (size_t& i = m_numSegmentsNeeded; i < SEGMENTS_MAX; i++)
     {
-        float x_intercept = m_segment1[0].position.x + ((Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segment1[0].position.y) / gradient;
+        float gradient = (m_segmentsMiddle[2*(i-1)].position.y - m_segmentsMiddle[2*(i-1)+1].position.y) / (m_segmentsMiddle[2*(i-1)].position.x - m_segmentsMiddle[2*(i-1)+1].position.x);
+
+        // the end of trajectory is in the ... third and intersects the ... wall
+        if (m_segmentsMiddle[2*(i-1)+1].position.y < (Spec::TABLE_TOP + Spec::BALL_RADIUS)) // top
+        {
+            float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
+
+            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
+            }
+            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
+            }
+            else // top wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = 2 * (Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_TOP + Spec::BALL_RADIUS)) / gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_TOP + Spec::BALL_RADIUS;
+            }
+        }
+        else if (m_segmentsMiddle[2*(i-1)+1].position.y > (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) // bottom
+        {
+            float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
+
+            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
+            }
+            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
+            }
+            else // bottom wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = 2 * (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) / gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_BOTTOM - Spec::BALL_RADIUS;
+            }
+        }
+        else // middle
+        {
+            if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
+            }
+            else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            {
+                m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
+                m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
+                m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+                m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
+            }
+            else // neither
+            {
+                return;
+            }
+        }
+
+        m_segmentsMiddle[2*i].position = m_segmentsMiddle[2*(i-1)+1].position;
+    }
+    
+    // doesn't let the last segment go out the table
+    size_t i = SEGMENTS_MAX;
+    float gradient = (m_segmentsMiddle[2*(i-1)].position.y - m_segmentsMiddle[2*(i-1)+1].position.y) / (m_segmentsMiddle[2*(i-1)].position.x - m_segmentsMiddle[2*(i-1)+1].position.x);
+
+    if (m_segmentsMiddle[2*(i-1)+1].position.y < (Spec::TABLE_TOP + Spec::BALL_RADIUS)) // top
+    {
+        float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
         if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_LEFT + Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
         else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_RIGHT- Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_RIGHT- Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
         }
         else // top wall
         {
-            m_segment2[1].position.x = m_segment1[1].position.x;
-            m_segment2[1].position.y = 2 * (Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segment1[1].position.y;
-            m_segment1[1].position.x = m_segment1[0].position.x - (m_segment1[0].position.y - (Spec::TABLE_TOP + Spec::BALL_RADIUS)) / gradient;
-            m_segment1[1].position.y = (Spec::TABLE_TOP + Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_TOP + Spec::BALL_RADIUS)) / gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_TOP + Spec::BALL_RADIUS;
         }
     }
-    else if (m_segment1[1].position.y > (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) // bottom
+    else if (m_segmentsMiddle[2*(i-1)+1].position.y > (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) // bottom
     {
-        float x_intercept = m_segment1[0].position.x + ((Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segment1[0].position.y) / gradient;
+        float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
         if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_LEFT + Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
         else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_RIGHT- Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_RIGHT- Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
         }
         else // bottom wall
         {
-            m_segment2[1].position.x = m_segment1[1].position.x;
-            m_segment2[1].position.y = 2 * (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segment1[1].position.y;
-            m_segment1[1].position.x = m_segment1[0].position.x - (m_segment1[0].position.y - (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) / gradient;
-            m_segment1[1].position.y = (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) / gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_BOTTOM - Spec::BALL_RADIUS;
         }
     }
     else // middle
     {
-        if (m_segment1[1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+        if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_LEFT + Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
-        else if (m_segment1[1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+        else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
         {
-            m_segment2[1].position.x = 2 * (Spec::TABLE_RIGHT- Spec::BALL_RADIUS) - m_segment1[1].position.x;
-            m_segment2[1].position.y = m_segment1[1].position.y;
-            m_segment1[1].position.y = m_segment1[0].position.y - (m_segment1[0].position.x - (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) * gradient;
-            m_segment1[1].position.x = (Spec::TABLE_RIGHT- Spec::BALL_RADIUS);
+            m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
+            m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
         }
         else // neither
         {
-            m_isExtensionNeeded = false; 
+            return;
         }
     }
-
-    m_segment2[0].position = m_segment1[1].position;
 }
 
-void Trajectory::updateExtra1()
+void Trajectory::updateLateral()
 {
-    sf::Vector2f shift = m_segment1[1].position - m_segment1[0].position;
-    shift /= Spec::hypot(shift);
-    std::swap(shift.x, shift.y);
-    shift.y *= -1.0f;
-    shift *= Spec::BALL_RADIUS;
+    for (size_t i = 0; i < m_numSegmentsNeeded; i++)
+    {
+        sf::Vector2f shift = m_segmentsMiddle[2*i+1].position - m_segmentsMiddle[2*i].position;
+        shift /= Spec::hypot(shift);
+        std::swap(shift.x, shift.y);
+        shift.y *= -1.0f;
+        shift *= Spec::BALL_RADIUS;
 
-    m_segment1L[0].position = m_segment1[0].position + shift;
-    m_segment1L[1].position = m_segment1[1].position + shift;
-    m_segment1R[0].position = m_segment1[0].position - shift;
-    m_segment1R[1].position = m_segment1[1].position - shift;
-}
-
-void Trajectory::updateExtra2()
-{
-    sf::Vector2f shift = m_segment2[1].position - m_segment2[0].position;
-    shift /= Spec::hypot(shift);
-    std::swap(shift.x, shift.y);
-    shift.y *= -1.0f;
-    shift *= Spec::BALL_RADIUS;
-
-    m_segment2L[0].position = m_segment2[0].position + shift;
-    m_segment2L[1].position = m_segment2[1].position + shift;
-    m_segment2R[0].position = m_segment2[0].position - shift;
-    m_segment2R[1].position = m_segment2[1].position - shift;
+        m_segmentsLeft[2*i].position = m_segmentsMiddle[2*i].position + shift;
+        m_segmentsLeft[2*i+1].position = m_segmentsMiddle[2*i+1].position + shift;
+        m_segmentsRight[2*i].position = m_segmentsMiddle[2*i].position - shift;
+        m_segmentsRight[2*i+1].position = m_segmentsMiddle[2*i+1].position - shift;
+    }
 }
 
 void Trajectory::draw(sf::RenderWindow& window)
@@ -166,26 +223,28 @@ void Trajectory::draw(sf::RenderWindow& window)
         return;
     
     if (m_mode == Minimum || m_mode == Normal || m_mode == All)
-        window.draw(m_segment1, 2, sf::Lines);
+    {
+        for (size_t i = 0; i < m_numSegmentsNeeded; i++)
+        {
+            window.draw(m_segmentsMiddle.data() + 2*i, 2, sf::Lines);
+        }
+    }
+
     if (m_mode == Detailed || m_mode == All)
     {
-        window.draw(m_segment1L, 2, sf::Lines);
-        window.draw(m_segment1R, 2, sf::Lines);
-    }
-    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
-        window.draw(m_ballPrev1);
-
-    if (m_isExtensionNeeded)
-    {
-        if (m_mode == Minimum || m_mode == Normal || m_mode == All)
-            window.draw(m_segment2, 2, sf::Lines);
-        if (m_mode == Detailed || m_mode == All)
+        for (size_t i = 0; i < m_numSegmentsNeeded; i++)
         {
-            window.draw(m_segment2L, 2, sf::Lines);
-            window.draw(m_segment2R, 2, sf::Lines);
+            window.draw(m_segmentsLeft.data() + 2*i, 2, sf::Lines);
+            window.draw(m_segmentsRight.data() + 2*i, 2, sf::Lines);
         }
-        if (m_mode == Normal || m_mode == Detailed || m_mode == All)
-            window.draw(m_ballPrev2);
+    }
+
+    if (m_mode == Normal || m_mode == Detailed || m_mode == All)
+    {
+        for (size_t i = 0; i < m_numSegmentsNeeded; i++)
+        {
+            window.draw(m_ballPreviews[i]);
+        }
     }
 }
 
@@ -213,18 +272,15 @@ void Trajectory::cycleMode()
 
 void Trajectory::setColor(const sf::Color& color)
 {
-    m_segment1[0].color = color;
-    m_segment1[1].color = color;
-    m_segment1L[0].color = color;
-    m_segment1L[1].color = color;
-    m_segment1R[0].color = color;
-    m_segment1R[1].color = color;
-    m_segment2[0].color = color;
-    m_segment2[1].color = color;
-    m_segment2L[0].color = color;
-    m_segment2L[1].color = color;
-    m_segment2R[0].color = color;
-    m_segment2R[1].color = color;
-    m_ballPrev1.setOutlineColor(color);
-    m_ballPrev2.setOutlineColor(color);
+    for (size_t i = 0; i < m_numSegmentsNeeded; i++)
+    {
+        m_segmentsMiddle[2*i].color = color;
+        m_segmentsMiddle[2*i+1].color = color;
+        m_segmentsLeft[2*i].color = color;
+        m_segmentsLeft[2*i+1].color = color;
+        m_segmentsRight[2*i].color = color;
+        m_segmentsRight[2*i+1].color = color;
+        m_ballPreviews[i].setOutlineColor(color);
+    }
 }
+

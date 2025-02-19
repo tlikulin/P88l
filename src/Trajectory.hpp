@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <array>
 
 class Trajectory
 {
@@ -20,18 +21,16 @@ public:
     void cycleMode();
 private:
     void setColor(const sf::Color& color);
-    void updateReflection();
-    void updateExtra1();
-    void updateExtra2();
+    void updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos);
+    void updateLateral();
 private:
-    sf::Vertex m_segment1[2];
-    sf::Vertex m_segment1L[2];
-    sf::Vertex m_segment1R[2];
-    sf::Vertex m_segment2[2];
-    sf::Vertex m_segment2L[2];
-    sf::Vertex m_segment2R[2];
-    sf::CircleShape m_ballPrev1;
-    sf::CircleShape m_ballPrev2;
-    bool m_isExtensionNeeded = false;
+    static constexpr size_t SEGMENTS_MAX = 4;
+    
+    std::array<sf::Vertex, 2*SEGMENTS_MAX> m_segmentsMiddle;
+    std::array<sf::Vertex, 2*SEGMENTS_MAX> m_segmentsLeft;
+    std::array<sf::Vertex, 2*SEGMENTS_MAX> m_segmentsRight;
+    std::array<sf::CircleShape, SEGMENTS_MAX> m_ballPreviews;
+
+    size_t m_numSegmentsNeeded = 1;
     TrajectoryMode m_mode;
 };
