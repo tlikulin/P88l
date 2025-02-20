@@ -25,6 +25,11 @@ Game::Game(const char* path) :
     m_soundPotting.setBuffer(m_bufferPotting);
     m_soundPotting.setVolume(40.0f);
 
+    m_textureEightball.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
+    m_textureEightball.setSmooth(true);
+    m_textureBall.loadFromFile(m_path / Spec::PATH_TO_BALL_TEXTURE);
+    m_textureBall.setSmooth(true);
+
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
@@ -43,7 +48,7 @@ void Game::initializeBalls()
     std::uniform_int_distribution distrib{0, 1};
     std::uniform_real_distribution<float> rdistrib{Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX};
 
-    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue);
+    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
     size_t player2Left = Spec::BALLS_PER_PLAYER;
@@ -51,12 +56,14 @@ void Game::initializeBalls()
     size_t currIndex = 0;
     sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
     Ball::BallType type;
+    const sf::Texture* texture;
 
     for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
     {
         if (i == Spec::EIGHTBALL_INDEX)
         {
             type = Ball::Eightball;
+            texture = &m_textureEightball;
         }
         else
         {
@@ -70,9 +77,10 @@ void Game::initializeBalls()
                 type = Ball::Player2;
                 player2Left--;
             }
+            texture = &m_textureBall;
         }
 
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type);
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, texture);
 
         currIndex++;
         if (currIndex == currColumn)

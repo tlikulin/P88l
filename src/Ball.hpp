@@ -14,12 +14,14 @@ public:
         Player2
     };
 public:
-    explicit Ball(sf::Vector2f position, BallType type);
+    explicit Ball(sf::Vector2f position, BallType type, const sf::Texture* texture);
 
     static sf::Color colorFromType(BallType type);
 
     void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);
+
+    void setTexture(const sf::Texture* texture);
 
     bool checkCollisionWithBall(Ball& other);
     bool checkCollisionWithBorder();

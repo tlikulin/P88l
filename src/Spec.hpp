@@ -22,9 +22,9 @@ namespace Spec
     inline constexpr float TABLE_CONTOUR_WIDTH          = 3.0f;
     //Balls
     inline constexpr float BALL_RADIUS                  = 15.0f;
-    inline constexpr float MAX_CHARGE_SPEED          = 3000.0f;
+    inline constexpr float MAX_CHARGE_SPEED             = 3000.0f;
     inline constexpr float CHARGE_VELOCITY_COEF         = 3.5f;
-    inline constexpr float FRICTION_COEF                = 80.0f;
+    inline constexpr float FRICTION_COEF                = 60.0f;
     inline constexpr float SPEED_FRICTION_COEF          = 0.00065f;
     inline constexpr float REBOUND_COEF                 = 0.95f;
     inline constexpr float POTTING_ANIM_DURATION        = 1.2f;
@@ -84,13 +84,16 @@ namespace Spec
     inline const sf::Color PLAYER1_COLOR                {0xfcd700ff};
     inline const sf::Color PLAYER2_COLOR                {0x720004ff}; 
     //Paths
-    inline const std::filesystem::path MEDIA_DIR                = "media";
-    inline const std::filesystem::path AUDIO_DIR                = MEDIA_DIR / "audio";
-    inline const std::filesystem::path FONTS_DIR                = MEDIA_DIR / "fonts";
-    inline const std::filesystem::path PATH_TO_CUE_SOUND        = AUDIO_DIR / "cue_strike.wav";
-    inline const std::filesystem::path PATH_TO_COLLISION_SOUND  = AUDIO_DIR / "ball_collision.wav";
-    inline const std::filesystem::path PATH_TO_POTTING_SOUND    = AUDIO_DIR / "potting.wav";
-    inline const std::filesystem::path PATH_TO_FONT             = FONTS_DIR / "MesloLGS NF Regular.ttf";
+    inline const std::filesystem::path MEDIA_DIR                    = "media";
+    inline const std::filesystem::path AUDIO_DIR                    = MEDIA_DIR / "audio";
+    inline const std::filesystem::path FONTS_DIR                    = MEDIA_DIR / "fonts";
+    inline const std::filesystem::path IMAGES_DIR                   = MEDIA_DIR / "images";
+    inline const std::filesystem::path PATH_TO_CUE_SOUND            = AUDIO_DIR / "cue_strike.wav";
+    inline const std::filesystem::path PATH_TO_COLLISION_SOUND      = AUDIO_DIR / "ball_collision.wav";
+    inline const std::filesystem::path PATH_TO_POTTING_SOUND        = AUDIO_DIR / "potting.wav";
+    inline const std::filesystem::path PATH_TO_FONT                 = FONTS_DIR / "MesloLGS NF Regular.ttf";
+    inline const std::filesystem::path PATH_TO_EIGHTBALL_TEXTURE    = IMAGES_DIR / "eightball.png";
+    inline const std::filesystem::path PATH_TO_BALL_TEXTURE         = IMAGES_DIR / "ball.png";
 
     inline float hypot(const sf::Vector2f& vec)
     {

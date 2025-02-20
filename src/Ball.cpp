@@ -3,13 +3,22 @@
 #include <cmath>
 #include <utility>
 
-Ball::Ball(sf::Vector2f position, BallType type) : 
+namespace
+{
+    constexpr float ROTATION_COEF = 0.3f;
+}
+
+Ball::Ball(sf::Vector2f position, BallType type, const sf::Texture* texture) : 
     m_type{type}
 {
     m_body.setRadius(Spec::BALL_RADIUS);
-    m_body.setFillColor(colorFromType(type));
     m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
     m_body.setPosition(position);
+    m_body.setTexture(texture);
+    if (type != Eightball)
+    {
+        m_body.setFillColor(colorFromType(type));
+    }
 }
 
 sf::Color Ball::colorFromType(BallType type)
@@ -87,6 +96,7 @@ void Ball::update(float deltaTime)
     }
 
     m_body.move(m_velocity * deltaTime);
+    m_body.rotate(ROTATION_COEF * Spec::hypot(m_velocity) * deltaTime);
 }
 
 float Ball::calculateAnimationRadius()
@@ -197,4 +207,9 @@ void Ball::replace(const sf::Vector2f& pos)
     
     m_body.setPosition(pos);
     m_isPotted = false;
+}
+
+void Ball::setTexture(const sf::Texture* texture)
+{
+    m_body.setTexture(texture);
 }
