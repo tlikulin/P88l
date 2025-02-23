@@ -17,18 +17,17 @@ Game::Game(const char* path) :
     m_ui.setFont(m_font);
     m_menu.setFont(m_font);
 
+    sf::Listener::setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
+    sf::Listener::setGlobalVolume(100.0f);
     m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
     m_soundCue.setBuffer(m_bufferCue);
+    m_soundCue.setAttenuation(0.0f);
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
-    m_soundCollision.setBuffer(m_bufferCollision);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
-    m_soundPotting.setBuffer(m_bufferPotting);
-    m_soundPotting.setVolume(40.0f);
+    m_pockets.setBuffer(m_bufferPotting);
 
     m_textureEightball.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
     m_textureEightball.setSmooth(true);
-    m_textureBall.loadFromFile(m_path / Spec::PATH_TO_BALL_TEXTURE);
-    m_textureBall.setSmooth(true);
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -48,7 +47,7 @@ void Game::initializeBalls()
     std::uniform_int_distribution distrib{0, 1};
     std::uniform_real_distribution<float> rdistrib{Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX};
 
-    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr);
+    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr, m_bufferCollision);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
     size_t player2Left = Spec::BALLS_PER_PLAYER;
@@ -77,10 +76,10 @@ void Game::initializeBalls()
                 type = Ball::Player2;
                 player2Left--;
             }
-            texture = &m_textureBall;
+            texture = nullptr;
         }
 
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, texture);
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, texture, m_bufferCollision);
 
         currIndex++;
         if (currIndex == currColumn)
@@ -201,7 +200,7 @@ void Game::update()
             ball.update(m_deltaTime);
             if (!ball.isPotted())
             {
-                if (m_pockets.isBallPotted(ball))
+                if (m_pockets.checkBallPotted(ball))
                 {
                     if (ball.getType() == Ball::Player1)
                     {
@@ -212,7 +211,6 @@ void Game::update()
                         m_wasP2BallPotted = true;
                     }
 
-                    m_soundPotting.play();
                     if(m_ui.update(ball))
                     {
                         m_menu.setMessage(sf::String{getActivePlayerName()} + " won!\n(by potting)",
@@ -221,9 +219,9 @@ void Game::update()
                         return;
                     }
                 }
-                else if (ball.checkCollisionWithBorder())
+                else
                 {
-                    m_soundCollision.play();
+                    ball.checkCollisionWithBorder();
                 }
             }
         }
@@ -231,10 +229,7 @@ void Game::update()
         {
             for (size_t j = i + 1; j < Spec::BALLS_TOTAL; j++)
             {
-                if (m_balls[i].checkCollisionWithBall(m_balls[j]))
-                {
-                    m_soundCollision.play();
-                }
+                m_balls[i].checkCollisionWithBall(m_balls[j]);
             }
         }
         if (checkEquilibrium())
@@ -295,12 +290,14 @@ void Game::nextTurn()
     else if (m_balls[Spec::CUE_INDEX].isPotted())
     {
         replaceBall(m_balls[Spec::CUE_INDEX]);
+        m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
         m_soundCue.play();
         switchPlayer();
     }
     else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
     {
         replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
+        m_soundCue.setPosition(m_balls[Spec::EIGHTBALL_INDEX].getPosition().x, 0.0f, m_balls[Spec::EIGHTBALL_INDEX].getPosition().y);
         m_soundCue.play();
         switchPlayer();
     }
@@ -448,6 +445,7 @@ void Game::newGame()
     initializeBalls();
     m_state = PlayerToMove;
     m_activePlayer = 1;
+    m_soundCue.setPosition(0.5f * static_cast<float>(Spec::SCREEN_WIDTH), 0.0f, 0.5f * static_cast<float>(Spec::SCREEN_HEIGHT));
     m_soundCue.play();
 }
 
@@ -495,6 +493,7 @@ void Game::launchCueBall(const sf::Vector2f& mousePos)
         chargeVelocity *= Spec::MAX_CHARGE_SPEED;
     }
     m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
+    m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
     m_soundCue.play();
     m_state = PlayerMotion;
     m_wasP1BallPotted = false;

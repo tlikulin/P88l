@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 class Ball
 {
@@ -14,17 +15,15 @@ public:
         Player2
     };
 public:
-    explicit Ball(sf::Vector2f position, BallType type, const sf::Texture* texture);
+    explicit Ball(sf::Vector2f position, BallType type, const sf::Texture* texture, const sf::SoundBuffer& buffer);
 
     static sf::Color colorFromType(BallType type);
 
     void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);
 
-    void setTexture(const sf::Texture* texture);
-
-    bool checkCollisionWithBall(Ball& other);
-    bool checkCollisionWithBorder();
+    void checkCollisionWithBall(Ball& other);
+    void checkCollisionWithBorder();
     void pot(const sf::Vector2f& pocket);
     void replace(const sf::Vector2f& pos);
     bool isWithinBall(float x, float y);
@@ -51,4 +50,5 @@ private:
     float m_animationDuration = 0.0f;
     sf::Vector2f m_animationShift{0.0f, 0.0f};
     sf::Vector2f m_scoredPosition{0.0f, 0.0f};
+    sf::Sound m_soundCollision;
 };

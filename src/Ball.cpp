@@ -8,17 +8,20 @@ namespace
     constexpr float ROTATION_COEF = 0.3f;
 }
 
-Ball::Ball(sf::Vector2f position, BallType type, const sf::Texture* texture) : 
+Ball::Ball(sf::Vector2f position, BallType type, const sf::Texture* texture, const sf::SoundBuffer& buffer) : 
     m_type{type}
 {
     m_body.setRadius(Spec::BALL_RADIUS);
     m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
     m_body.setPosition(position);
     m_body.setTexture(texture);
-    if (type != Eightball)
+    if (!texture)
     {
         m_body.setFillColor(colorFromType(type));
     }
+    m_soundCollision.setBuffer(buffer);
+    m_soundCollision.setMinDistance(0.6f * Spec::TABLE_HEIGHT);
+    m_soundCollision.setAttenuation(0.3f);
 }
 
 sf::Color Ball::colorFromType(BallType type)
@@ -97,6 +100,7 @@ void Ball::update(float deltaTime)
 
     m_body.move(m_velocity * deltaTime);
     m_body.rotate(ROTATION_COEF * Spec::hypot(m_velocity) * deltaTime);
+    m_soundCollision.setPosition(getPosition().x, 0.0f, getPosition().y);
 }
 
 float Ball::calculateAnimationRadius()
@@ -118,17 +122,19 @@ void Ball::scaleVelocity(float xScale, float yScale)
 // Checks collision with another ball
 // Also handles velocity changes due to the collision
 // (oblique collision of 2 smooth balls)
-bool Ball::checkCollisionWithBall(Ball& other)
+void Ball::checkCollisionWithBall(Ball& other)
 {
-    if (isPotted() || other.isPotted())
-        return false;
+    if (isPotted() || other.isPotted()) 
+    {
+        return;
+    }
 
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
     const float intersection = 2 * Spec::BALL_RADIUS - Spec::hypot(vec1to2);
 
-    if (intersection <= 0.0f)
+    if (intersection <= 0.0f) 
     {
-        return false;
+        return;
     }
 
     sf::Vector2f otherVelocity = other.getVelocity();
@@ -154,30 +160,27 @@ bool Ball::checkCollisionWithBall(Ball& other)
         m_velocity = sf::Vector2f{u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle)};
         other.setVelocity(sf::Vector2f{u2_proj.x*std::cos(angle) - u2_proj.y*std::sin(angle), u2_proj.x*std::sin(angle) + u2_proj.y*std::cos(angle)});
 
-        return true;
-    }
-    return false;    
+        m_soundCollision.play();
+    }  
 }
 
 // checks and handles collision of the ball with the walls
-bool Ball::checkCollisionWithBorder()
+void Ball::checkCollisionWithBorder()
 {
     //collides with the bottom or top border
-    if ((getPosition().y + Spec::BALL_RADIUS > Spec::TABLE_BOTTOM && getVelocity().y > 0)
-        || (getPosition().y - Spec::BALL_RADIUS < Spec::TABLE_TOP && getVelocity().y < 0))
+    if ((getPosition().y + Spec::BALL_RADIUS > Spec::TABLE_BOTTOM && getVelocity().y > 0.0f)
+        || (getPosition().y - Spec::BALL_RADIUS < Spec::TABLE_TOP && getVelocity().y < 0.0f))
     {
         scaleVelocity(Spec::REBOUND_COEF, -Spec::REBOUND_COEF);
-        return true;
+        m_soundCollision.play();
     }
     //collides with the right or left border
-    if ((getPosition().x + Spec::BALL_RADIUS > Spec::TABLE_RIGHT && getVelocity().x > 0)
-        || (getPosition().x - Spec::BALL_RADIUS < Spec::TABLE_LEFT && getVelocity().x < 0))
+    else if ((getPosition().x + Spec::BALL_RADIUS > Spec::TABLE_RIGHT && getVelocity().x > 0.0f)
+        || (getPosition().x - Spec::BALL_RADIUS < Spec::TABLE_LEFT && getVelocity().x < 0.0f))
     {
         scaleVelocity(-Spec::REBOUND_COEF, Spec::REBOUND_COEF);
-        return true;
+        m_soundCollision.play();
     }
-
-    return false;
 }
 
 // is the point with given coordinates within the ball
@@ -207,9 +210,4 @@ void Ball::replace(const sf::Vector2f& pos)
     
     m_body.setPosition(pos);
     m_isPotted = false;
-}
-
-void Ball::setTexture(const sf::Texture* texture)
-{
-    m_body.setTexture(texture);
 }
