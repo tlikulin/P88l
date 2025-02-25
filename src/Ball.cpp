@@ -101,6 +101,7 @@ void Ball::update(float deltaTime)
     m_body.move(m_velocity * deltaTime);
     m_body.rotate(ROTATION_COEF * Spec::hypot(m_velocity) * deltaTime);
     m_soundCollision.setPosition(getPosition().x, 0.0f, getPosition().y);
+    m_soundCollision.setVolume(std::min(std::sqrt(20.0f*Spec::hypot(m_velocity)), 100.0f));
 }
 
 float Ball::calculateAnimationRadius()

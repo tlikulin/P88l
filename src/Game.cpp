@@ -93,7 +93,7 @@ void Game::initializeBalls()
 
 void Game::run()
 {
-    while (isRunning())
+    while (m_window.isOpen())
     {
         gameLoop();
     }

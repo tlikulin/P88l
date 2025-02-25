@@ -31,7 +31,6 @@ private:
     };
 private:
     void initializeBalls();
-    bool isRunning() { return m_window.isOpen(); }
     void gameLoop();
     void update();
     void draw();
