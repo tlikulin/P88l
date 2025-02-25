@@ -10,6 +10,8 @@ public:
     void draw(sf::RenderWindow& window);
     bool isWithinButton1(const sf::Vector2f& mousePos);
     bool isWithinButton2(const sf::Vector2f& mousePos);
+    bool isWithinButtonMystery(const sf::Vector2f& mousePos);
+    void setMystery(bool isMysteryEnabled);
     void setMessage(const sf::String& message, const sf::Color& color = sf::Color::Black);
 private:
     sf::Text m_title;
@@ -20,4 +22,6 @@ private:
     sf::Text m_button1Text;
     sf::RectangleShape m_button2;
     sf::Text m_button2Text;
+    sf::RectangleShape m_buttonMystery;
+    sf::Text m_buttonMysteryText;
 };

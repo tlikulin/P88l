@@ -55,14 +55,12 @@ void Game::initializeBalls()
     size_t currIndex = 0;
     sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
     Ball::BallType type;
-    const sf::Texture* texture;
 
     for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
     {
         if (i == Spec::EIGHTBALL_INDEX)
         {
             type = Ball::Eightball;
-            texture = &m_textureEightball;
         }
         else
         {
@@ -76,10 +74,10 @@ void Game::initializeBalls()
                 type = Ball::Player2;
                 player2Left--;
             }
-            texture = nullptr;
         }
 
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, texture, m_bufferCollision);
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, 
+                             m_isMysteryEnabled || type == Ball::Eightball ? &m_textureEightball : nullptr, m_bufferCollision);
 
         currIndex++;
         if (currIndex == currColumn)
@@ -142,20 +140,29 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
         m_state = PlayerAiming;
     }
     else if (m_state == InMenu
-             && event.mouseButton.button == sf::Mouse::Left
-             && m_menu.isWithinButton1(mousePos))
+            && event.mouseButton.button == sf::Mouse::Left
+            && m_menu.isWithinButton1(mousePos))
     {
         m_botPlaysAs = 0;
         newGame();
     }
     else if (m_state == InMenu
-             && event.mouseButton.button == sf::Mouse::Left
-             && m_menu.isWithinButton2(mousePos))
+            && event.mouseButton.button == sf::Mouse::Left
+            && m_menu.isWithinButton2(mousePos))
     {
         std::uniform_int_distribution<> distrib{1, 2};
         m_botPlaysAs = distrib(*m_rng);
         newGame();
-    }    
+    }
+    else if (m_state == InMenu
+            && event.mouseButton.button == sf::Mouse::Left
+            && m_menu.isWithinButtonMystery(mousePos))
+    {
+        m_isMysteryEnabled = !m_isMysteryEnabled;
+        m_menu.setMystery(m_isMysteryEnabled);
+        m_soundCue.setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
+        m_soundCue.play();
+    }
 }
 
 void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos)
@@ -443,6 +450,7 @@ void Game::newGame()
 {
     m_ui.reset();
     initializeBalls();
+    m_menu.setMystery(m_isMysteryEnabled = false);
     m_state = PlayerToMove;
     m_activePlayer = 1;
     m_soundCue.setPosition(0.5f * static_cast<float>(Spec::SCREEN_WIDTH), 0.0f, 0.5f * static_cast<float>(Spec::SCREEN_HEIGHT));

@@ -43,6 +43,17 @@ Menu::Menu()
     m_button2Text.setString("Against Bot");
     m_button2Text.setPosition(732.0f, 370.0f);
     m_button2Text.setFillColor(sf::Color::Black);
+
+    m_buttonMystery.setPosition(1200.0f, 600.0f);
+    m_buttonMystery.setSize(sf::Vector2f{60.0f, 60.0f});
+    m_buttonMystery.setFillColor(sf::Color{0xef5250ff});
+    m_buttonMystery.setOutlineColor(sf::Color::Black);
+    m_buttonMystery.setOutlineThickness(1.2f);
+
+    m_buttonMysteryText.setCharacterSize(30);
+    m_buttonMysteryText.setString("???");
+    m_buttonMysteryText.setPosition(1203.0f, 610.0f);
+    m_buttonMysteryText.setFillColor(sf::Color::Black);
 }
 
 void Menu::setFont(const sf::Font& font)
@@ -50,8 +61,10 @@ void Menu::setFont(const sf::Font& font)
     m_title.setFont(font);
     m_by.setFont(font);
     m_message.setFont(font);
-    m_again.setFont(font);    m_button1Text.setFont(font);
+    m_again.setFont(font);
+    m_button1Text.setFont(font);
     m_button2Text.setFont(font);
+    m_buttonMysteryText.setFont(font);
 }
 
 void Menu::draw(sf::RenderWindow& window)
@@ -64,6 +77,8 @@ void Menu::draw(sf::RenderWindow& window)
     window.draw(m_button1Text);
     window.draw(m_button2);
     window.draw(m_button2Text);
+    window.draw(m_buttonMystery);
+    window.draw(m_buttonMysteryText);
 }
 
 bool Menu::isWithinButton1(const sf::Vector2f& mousePos)
@@ -74,6 +89,23 @@ bool Menu::isWithinButton1(const sf::Vector2f& mousePos)
 bool Menu::isWithinButton2(const sf::Vector2f& mousePos)
 {
     return (700.0f <= mousePos.x && mousePos.x <= 700.0f + 310.0f) && (350.0f <= mousePos.y && mousePos.y <= 350.0f + 80.0f);
+}
+
+bool Menu::isWithinButtonMystery(const sf::Vector2f& mousePos)
+{
+    return (1200.0f <= mousePos.x && mousePos.x <= 1200.0f + 60.0f) && (600.0f <= mousePos.y && mousePos.y <= 600.0f + 60.0f);
+}
+
+void Menu::setMystery(bool isMysteryEnabled)
+{
+    if (isMysteryEnabled)
+    {
+        m_buttonMystery.setFillColor(sf::Color{0x4cae50ff});
+    }
+    else
+    {
+        m_buttonMystery.setFillColor(sf::Color{0xef5250ff});
+    }
 }
 
 void Menu::setMessage(const sf::String& message, const sf::Color& color)

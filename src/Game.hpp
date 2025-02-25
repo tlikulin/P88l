@@ -77,6 +77,7 @@ private:
     bool m_wasP1BallPotted = false;
     bool m_wasP2BallPotted = false;
     bool m_isFpsShown = false;
+    bool m_isMysteryEnabled = false;
     sf::Vector2f m_botMousePos;
     sf::Vector2f m_botMouseShift;
     float m_botAimingProgress = 0.0f;
