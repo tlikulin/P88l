@@ -10,7 +10,7 @@ Menu::Menu()
     m_by.setCharacterSize(30);
     m_by.setString("by tlikulin");
     m_by.setPosition(755.0f, 75.0f);
-    m_by.setFillColor(sf::Color::Black);
+    m_by.setFillColor(sf::Color{0x121e47ff});
 
     m_message.setCharacterSize(40);
     m_message.setString("Welcome to the game!");
@@ -54,9 +54,11 @@ Menu::Menu()
     m_buttonMysteryText.setString("???");
     m_buttonMysteryText.setPosition(1203.0f, 610.0f);
     m_buttonMysteryText.setFillColor(sf::Color::Black);
+
+    m_info.setPosition(10.0f, 465.0f);
 }
 
-void Menu::setFont(const sf::Font& font)
+void Menu::setFontAndTexture(const sf::Font& font, const sf::Texture& texture)
 {
     m_title.setFont(font);
     m_by.setFont(font);
@@ -65,6 +67,7 @@ void Menu::setFont(const sf::Font& font)
     m_button1Text.setFont(font);
     m_button2Text.setFont(font);
     m_buttonMysteryText.setFont(font);
+    m_info.setTexture(texture);
 }
 
 void Menu::draw(sf::RenderWindow& window)
@@ -79,6 +82,7 @@ void Menu::draw(sf::RenderWindow& window)
     window.draw(m_button2Text);
     window.draw(m_buttonMystery);
     window.draw(m_buttonMysteryText);
+    window.draw(m_info);
 }
 
 bool Menu::isWithinButton1(const sf::Vector2f& mousePos)

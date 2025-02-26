@@ -21,6 +21,7 @@ public:
 
     void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);
+    void playSound();
 
     void checkCollisionWithBall(Ball& other);
     void checkCollisionWithBorder();
@@ -40,6 +41,7 @@ public:
     BallType getType()          const { return m_type; }
     bool isPotted()             const { return m_isPotted; }
     bool isAnimationPlaying()   const { return m_animationDuration != 0.0f; }
+    float getVolume()           const { return m_soundCollision.getVolume(); }
 private:
     float calculateAnimationRadius();
 private:

@@ -161,7 +161,14 @@ void Ball::checkCollisionWithBall(Ball& other)
         m_velocity = sf::Vector2f{u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle)};
         other.setVelocity(sf::Vector2f{u2_proj.x*std::cos(angle) - u2_proj.y*std::sin(angle), u2_proj.x*std::sin(angle) + u2_proj.y*std::cos(angle)});
 
-        m_soundCollision.play();
+        if (m_soundCollision.getVolume() > other.getVolume())
+        {
+            m_soundCollision.play();
+        }
+        else
+        {
+            other.playSound();
+        }
     }  
 }
 
@@ -211,4 +218,9 @@ void Ball::replace(const sf::Vector2f& pos)
     
     m_body.setPosition(pos);
     m_isPotted = false;
+}
+
+void Ball::playSound()
+{
+    m_soundCollision.play();
 }

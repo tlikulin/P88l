@@ -67,6 +67,7 @@ private:
     sf::SoundBuffer m_bufferPotting;
     sf::Font m_font;
     sf::Texture m_textureEightball;
+    sf::Texture m_menuInfo;
     // time
     sf::Clock m_clock;
     float m_deltaTime = 0.0f;

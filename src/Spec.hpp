@@ -93,7 +93,7 @@ namespace Spec
     inline const std::filesystem::path PATH_TO_POTTING_SOUND        = AUDIO_DIR / "potting.wav";
     inline const std::filesystem::path PATH_TO_FONT                 = FONTS_DIR / "MesloLGS NF Regular.ttf";
     inline const std::filesystem::path PATH_TO_EIGHTBALL_TEXTURE    = IMAGES_DIR / "eightball.png";
-    inline const std::filesystem::path PATH_TO_BALL_TEXTURE         = IMAGES_DIR / "ball.png";
+    inline const std::filesystem::path PATH_TO_MENU_INFO            = IMAGES_DIR / "menu_info.png";
 
     inline float hypot(const sf::Vector2f& vec)
     {

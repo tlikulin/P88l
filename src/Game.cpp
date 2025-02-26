@@ -15,8 +15,7 @@ Game::Game(const char* path) :
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
     m_fpsCounter.setFont(m_font);
     m_ui.setFont(m_font);
-    m_menu.setFont(m_font);
-
+    
     sf::Listener::setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
     sf::Listener::setGlobalVolume(100.0f);
     m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
@@ -25,10 +24,12 @@ Game::Game(const char* path) :
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
     m_pockets.setBuffer(m_bufferPotting);
-
+    
     m_textureEightball.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
     m_textureEightball.setSmooth(true);
-
+    m_menuInfo.loadFromFile(m_path / Spec::PATH_TO_MENU_INFO);
+    m_menu.setFontAndTexture(m_font, m_menuInfo);
+    
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);

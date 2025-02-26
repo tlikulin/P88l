@@ -6,7 +6,7 @@ class Menu
 {
 public:
     Menu();
-    void setFont(const sf::Font& font);
+    void setFontAndTexture(const sf::Font& font, const sf::Texture& texture);
     void draw(sf::RenderWindow& window);
     bool isWithinButton1(const sf::Vector2f& mousePos);
     bool isWithinButton2(const sf::Vector2f& mousePos);
@@ -24,4 +24,5 @@ private:
     sf::Text m_button2Text;
     sf::RectangleShape m_buttonMystery;
     sf::Text m_buttonMysteryText;
+    sf::Sprite m_info;
 };
