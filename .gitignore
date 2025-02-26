@@ -1,5 +1,7 @@
 /.vscode
 *.o
 P88l
-Makefile.bak
+Makefile.*
 CMakeLists.txt
+/build
+/bin

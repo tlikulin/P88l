@@ -6,10 +6,10 @@ OBJS=$(patsubst src/%.cpp,src/%.o,$(SRCS))
 .PHONY: clean depend
 
 P88l: $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(SFML-LIB)
+	$(CXX) -o bin/$@ $(OBJS) $(SFML-LIB)
 
 clean:
-	rm P88l src/*.o
+	rm bin/P88l src/*.o
 depend:
 	makedepend  $(SRCS) -Y
 # DO NOT DELETE THIS LINE

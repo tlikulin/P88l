@@ -9,7 +9,7 @@ namespace
 
 Game::Game(const char* path) :
     m_trajectory{Trajectory::Normal},
-    m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path()},
+    m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path().parent_path()},
     m_state{InMenu}
 {
     m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
