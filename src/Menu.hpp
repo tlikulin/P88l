@@ -8,6 +8,7 @@ class Menu
 public:
     Menu();
     void setFontAndTexture(const sf::Font& font, const sf::Texture& texture);
+    
     void draw(sf::RenderWindow& window);
 
     bool isWithinButtonMode1(const sf::Vector2f& mousePos);

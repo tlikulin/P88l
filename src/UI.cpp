@@ -5,24 +5,24 @@
 namespace
 {
     //text
-    const sf::String SEPARATOR_TEXT {":"};
-    constexpr unsigned int STATE_FONT_SIZE = 26u;
-    constexpr float TEXT_OUTLINE_THICKNESS = 1.5f;
+    const sf::String SEPARATOR_TEXT         {":"};
+    constexpr unsigned int STATE_FONT_SIZE  = 26u;
+    constexpr float TEXT_OUTLINE_THICKNESS  = 1.5f;
     constexpr float SLOTS_OUTLINE_THICKNESS = 1.8f;
     //positions
-    const sf::Vector2f STATE_PLAYER1_POS {70.0f, 20.0f};
-    const sf::Vector2f STATE_PLAYER2_POS {1130.0f, 20.0f};
-    const sf::Vector2f SLOTS_PLAYER1_START{525.0f ,50.0f};
-    const sf::Vector2f SLOTS_PLAYER2_START{775.0f ,50.0f};
-    constexpr float SLOTS_SEPARATION = 3.2f * Spec::BALL_RADIUS;
-    const sf::Vector2f SLOTS_EIGHTBALL_POS{630.0f, 80.0f};
-    const sf::Vector2f SLOTS_CUEBALL_POS{673.0f, 80.0f};
-    const sf::Vector2f EIGHTBALL_READY_PLAYER1_POS {612.0f, 62.0f};
-    const sf::Vector2f EIGHTBALL_READY_PLAYER2_POS {630.0f, 62.0f};
-    const sf::Vector2f EIGHTBALL_READY_SIZE {18.0f, 36.0f};
+    const sf::Vector2f STATE_PLAYER1_POS            {70.0f, 20.0f};
+    const sf::Vector2f STATE_PLAYER2_POS            {1130.0f, 20.0f};
+    const sf::Vector2f SLOTS_PLAYER1_START          {525.0f ,50.0f};
+    const sf::Vector2f SLOTS_PLAYER2_START          {775.0f ,50.0f};
+    constexpr float SLOTS_SEPARATION                = 3.2f * Spec::BALL_RADIUS;
+    const sf::Vector2f SLOTS_EIGHTBALL_POS          {630.0f, 80.0f};
+    const sf::Vector2f SLOTS_CUEBALL_POS            {673.0f, 80.0f};
+    const sf::Vector2f EIGHTBALL_READY_PLAYER1_POS  {612.0f, 62.0f};
+    const sf::Vector2f EIGHTBALL_READY_PLAYER2_POS  {630.0f, 62.0f};
+    const sf::Vector2f EIGHTBALL_READY_SIZE         {18.0f, 36.0f};
     //colors (alpha reduced to half)
-    const sf::Color PLAYER1_COLOR_CONTOUR {Spec::PLAYER1_COLOR.toInteger() & 0xffffff88};
-    const sf::Color PLAYER2_COLOR_CONTOUR {Spec::PLAYER2_COLOR.toInteger() & 0xffffff88};
+    const sf::Color PLAYER1_COLOR_CONTOUR   {Spec::PLAYER1_COLOR.toInteger() & 0xffffff88};
+    const sf::Color PLAYER2_COLOR_CONTOUR   {Spec::PLAYER2_COLOR.toInteger() & 0xffffff88};
 }
 
 //first 7 balls - player1, next 7 balls - player2, then eight-ball, then cue ball; 16 in total
@@ -112,22 +112,6 @@ void UI::setFont(const sf::Font& font)
     m_textPlayer2State.setFont(font);
 }
 
-// Sets the string for the active player.
-void UI::setString(unsigned char activePlayer, const sf::String& state)
-{
-    switch (m_activePlayer = activePlayer)
-    {
-    case 1:
-        m_textPlayer1State.setString(state);
-        break;
-    case 2:
-        m_textPlayer2State.setString(state);
-        break;
-    default:
-        break;
-    }
-}
-
 // Updates the score with the new potted ball.
 // Return true if the potted eight-ball was final.
 bool UI::update(Ball& ball)
@@ -191,6 +175,22 @@ void UI::draw(sf::RenderWindow& window)
     for (const auto& slot : m_ballSlots)
     {
         window.draw(slot);
+    }
+}
+
+// Sets the string for the active player.
+void UI::setString(unsigned char activePlayer, const sf::String& state)
+{
+    switch (m_activePlayer = activePlayer)
+    {
+    case 1:
+        m_textPlayer1State.setString(state);
+        break;
+    case 2:
+        m_textPlayer2State.setString(state);
+        break;
+    default:
+        break;
     }
 }
 

@@ -12,32 +12,42 @@ Game::Game(const char* path) :
     m_path{std::filesystem::canonical(std::filesystem::path{path}).parent_path().parent_path()},
     m_state{InMenu}
 {
-    m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
-    m_fpsCounter.setFont(m_font);
-    m_ui.setFont(m_font);
-    
-    sf::Listener::setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
-    sf::Listener::setGlobalVolume(100.0f);
+    // loading from files
     m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
-    m_soundCue.setBuffer(m_bufferCue);
-    m_soundCue.setAttenuation(0.0f);
     m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
     m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
-    m_pockets.setBuffer(m_bufferPotting);
-    
+    m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
     m_textureEightball.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
     m_textureEightball.setSmooth(true);
     m_menuInfo.loadFromFile(m_path / Spec::PATH_TO_MENU_INFO);
+    // setting font (and texture)
+    m_fpsCounter.setFont(m_font);
+    m_ui.setFont(m_font);
     m_menu.setFontAndTexture(m_font, m_menuInfo);
-    
+    // setting sounds
+    sf::Listener::setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
+    sf::Listener::setGlobalVolume(100.0f);
+    m_soundCue.setBuffer(m_bufferCue);
+    m_soundCue.setAttenuation(0.0f);
+    m_pockets.setBuffer(m_bufferPotting);
+    // creating window
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(200);
-
+    // reserve space for all balls
     m_balls.reserve(Spec::BALLS_TOTAL);
 }
 
+void Game::run()
+{
+    while (m_window.isOpen())
+    {
+        gameLoop();
+    }
+}
+
+// Initializes all balls; random order for player balls
 void Game::initializeBalls()
 {
     if (!m_balls.empty())
@@ -47,7 +57,7 @@ void Game::initializeBalls()
 
     std::uniform_int_distribution distrib{0, 1};
     std::uniform_real_distribution<float> rdistrib{Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX};
-
+    // cue ball
     m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr, m_bufferCollision);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
@@ -56,7 +66,7 @@ void Game::initializeBalls()
     size_t currIndex = 0;
     sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
     Ball::BallType type;
-
+    // player balls and eight-ball
     for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
     {
         if (i == Spec::EIGHTBALL_INDEX)
@@ -90,118 +100,28 @@ void Game::initializeBalls()
     }
 }
 
-void Game::run()
-{
-    while (m_window.isOpen())
-    {
-        gameLoop();
-    }
-}
 
+// DeltaTime is measured, events are handled, everything that needed is updated and drawn.
 void Game::gameLoop()
 {
     m_deltaTime = m_clock.restart().asSeconds();
 
     sf::Event event;
     while (m_window.pollEvent(event))
+    {
         handleEvent(event);
+    }
     
     update();
     draw();
 }
 
-void Game::handleEvent(const sf::Event& event)
-{
-    switch (event.type)
-    {
-    case sf::Event::Closed:
-        m_window.close();
-        return;
-    case sf::Event::MouseButtonPressed:
-        handleMouseButtonPressed(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
-        return;
-    case sf::Event::MouseButtonReleased:
-        handleMouseButtonReleased(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
-        return;
-    case sf::Event::KeyPressed:
-        handleKeyPressed(event);
-        return;
-    default:
-        return;
-    }
-}
-
-void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
-{
-    if (m_state == PlayerToMove
-        && event.mouseButton.button == sf::Mouse::Left 
-        && !m_balls[Spec::CUE_INDEX].isPotted()
-        && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
-    {
-        m_state = PlayerAiming;
-    }
-    else if (m_state == InMenu
-            && event.mouseButton.button == sf::Mouse::Left
-            && m_menu.isWithinButtonMode1(mousePos))
-    {
-        m_botPlaysAs = 0;
-        newGame();
-    }
-    else if (m_state == InMenu
-            && event.mouseButton.button == sf::Mouse::Left
-            && m_menu.isWithinButtonMode2(mousePos))
-    {
-        std::uniform_int_distribution<> distrib{1, 2};
-        m_botPlaysAs = distrib(*m_rng);
-        newGame();
-    }
-    else if (m_state == InMenu
-            && event.mouseButton.button == sf::Mouse::Left
-            && m_menu.isWithinButtonMystery(mousePos))
-    {
-        m_isMysteryEnabled = !m_isMysteryEnabled;
-        m_menu.setMystery(m_isMysteryEnabled);
-        m_soundCue.setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
-        m_soundCue.play();
-    }
-}
-
-void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos)
-{
-    if (m_state == PlayerAiming && event.mouseButton.button == sf::Mouse::Left)
-    {
-        if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
-        {
-            launchCueBall(mousePos);
-        }
-        else
-        {
-            m_state = PlayerToMove;
-        }
-    }
-}
-
-void Game::handleKeyPressed(const sf::Event& event)
-{
-    if (event.key.code == sf::Keyboard::P)
-    {
-        m_trajectory.cycleMode();
-    }
-    else if (event.key.code == sf::Keyboard::Tilde)
-    {
-        m_isFpsShown = !m_isFpsShown;
-    }
-    else if (event.key.code == sf::Keyboard::Escape && event.key.shift)
-    {
-        m_menu.setMessage("You abandoned the game.", sf::Color::Black);
-        m_state = InMenu;
-    }
-}
-
+// Updated objects depend on the game state.
 void Game::update()
 {
     switch (m_state)
     {
+    // if the balls are moving, update their velocities and positions, check for collisions and potting
     case PlayerMotion:
         for (Ball& ball : m_balls)
         {
@@ -245,9 +165,11 @@ void Game::update()
             nextTurn();
         }
         break;
+    // while aiming, only the trajectory is updated
     case PlayerAiming:
         m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
         break;
+    // simulate gradual change in trajectory while the bot is aiming
     case BotAiming:
         m_botAimingProgress += m_deltaTime;
         if (m_botAimingProgress >= botAimingTime)
@@ -262,6 +184,7 @@ void Game::update()
             m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
         }
         break;
+    // if the active player is bot, set the final aiming position at the closest ball of their color (or eight-ball when ready) and add some random shift and power; nothing otherwise
     case PlayerToMove:
         if (m_activePlayer == m_botPlaysAs)
         {
@@ -270,8 +193,9 @@ void Game::update()
 
             m_botMousePos = m_balls[Spec::CUE_INDEX].getPosition();
             m_botMouseShift = m_balls[Spec::CUE_INDEX].getPosition() - botFindClosestBall();
-            m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_SPEED / Spec::CHARGE_VELOCITY_COEF) / Spec::hypot(m_botMouseShift);
-            m_botMouseShift.x += distribSpread(*m_rng);
+            m_botMouseShift /= Spec::hypot(m_botMouseShift); // now unit
+            m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_SPEED / Spec::CHARGE_VELOCITY_COEF); // random power
+            m_botMouseShift.x += distribSpread(*m_rng); // random spread
             m_botMouseShift.y += distribSpread(*m_rng);
             m_botAimingProgress = 0.0f;
             m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
@@ -281,71 +205,21 @@ void Game::update()
     default:
         break;
     }
-
+    // also update the displayed state and fps
     m_ui.setString(m_activePlayer, std::string{getActivePlayerName()} + '\n' + getStateAsString());
     m_fpsCounter.update(m_deltaTime);
 }
 
-void Game::nextTurn()
-{
-    if (m_balls[Spec::CUE_INDEX].isPotted() && m_balls[Spec::EIGHTBALL_INDEX].isPotted())
-    {
-        m_state = InMenu;
-        switchPlayer();
-        m_menu.setMessage(sf::String{getActivePlayerName()} + "won by fatal foul!", 
-                          m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
-    } 
-    else if (m_balls[Spec::CUE_INDEX].isPotted())
-    {
-        replaceBall(m_balls[Spec::CUE_INDEX]);
-        m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
-        m_soundCue.play();
-        switchPlayer();
-    }
-    else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
-    {
-        replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
-        m_soundCue.setPosition(m_balls[Spec::EIGHTBALL_INDEX].getPosition().x, 0.0f, m_balls[Spec::EIGHTBALL_INDEX].getPosition().y);
-        m_soundCue.play();
-        switchPlayer();
-    }
-    else if (m_activePlayer == 1 && m_wasP1BallPotted && !m_wasP2BallPotted)
-    {
-        // extra turn
-    }
-    else if (m_activePlayer == 2 && m_wasP2BallPotted && !m_wasP1BallPotted)
-    {
-        // extra turn
-    }
-    else
-    {
-        switchPlayer();
-    }
-
-    m_state = PlayerToMove;
-}
-
-bool Game::checkEquilibrium()
-{
-    for (const Ball& ball : m_balls)
-    {
-        if (ball.isAnimationPlaying() || (!ball.isPotted() && ball.getVelocity() != sf::Vector2f{0.0f, 0.0f}))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
+// Draws different objects depending on the game state
 void Game::draw()
 {
     m_window.clear(Spec::BG_COLOR);
-
+    // while in menu, only menu is displayed
     if (m_state == InMenu)
     {
         m_menu.draw(m_window);
     }
+    // otherwise draw table, pockets, balls, ui, and trajectory if aiming
     else
     {
         m_table.draw(m_window);
@@ -360,31 +234,245 @@ void Game::draw()
         }
         m_ui.draw(m_window);
     }
-
+    // draw fps if it's turned on
     if (m_isFpsShown)
     {
         m_fpsCounter.draw(m_window);
     }
-    
+    // flush
     m_window.display();
 }
 
-const char* Game::getStateAsString()
+// handle events of closing, pressing a mouse button or a key, releasing a mouse button
+void Game::handleEvent(const sf::Event& event)
 {
-    switch (m_state)
+    switch (event.type)
     {
-    case PlayerToMove:
-        return "to move";
-    case PlayerAiming:
-    case BotAiming:
-        return "aiming";
-    case PlayerMotion:
-        return "";
+    case sf::Event::Closed:
+        m_window.close();
+        return;
+    case sf::Event::MouseButtonPressed:
+        handleMouseButtonPressed(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
+        return;
+    case sf::Event::MouseButtonReleased:
+        handleMouseButtonReleased(event, sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
+        return;
+    case sf::Event::KeyPressed:
+        handleKeyPressed(event);
+        return;
     default:
-        return "N/A";
+        return;
     }
 }
 
+void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
+{
+    // if in menu, check if any menu button is hit
+    if (m_state == InMenu && event.mouseButton.button == sf::Mouse::Left)
+    {
+        // 2 players
+        if (m_menu.isWithinButtonMode1(mousePos))
+        {
+            m_botPlaysAs = 0;
+            newGame();
+        }
+        // against bot
+        else if (m_menu.isWithinButtonMode2(mousePos))
+        {
+            std::uniform_int_distribution<> distrib{1, 2};
+            m_botPlaysAs = distrib(*m_rng);
+            newGame();
+        }
+        // togle mystery mode
+        else if (m_menu.isWithinButtonMystery(mousePos))
+        {
+            m_isMysteryEnabled = !m_isMysteryEnabled;
+            m_menu.setMystery(m_isMysteryEnabled);
+            m_soundCue.setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
+            m_soundCue.play();
+        }
+    }
+    // start aiming if pressed inside cue ball
+    else if (m_state == PlayerToMove
+        && event.mouseButton.button == sf::Mouse::Left 
+        && !m_balls[Spec::CUE_INDEX].isPotted()
+        && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
+    {
+        m_state = PlayerAiming;
+    }
+}
+
+void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos)
+{
+    // if was already aiming
+    if (m_state == PlayerAiming && event.mouseButton.button == sf::Mouse::Left)
+    {
+        // launch only if outside the cue ball
+        if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
+        {
+            launchCueBall(mousePos);
+        }
+        else
+        {
+            m_state = PlayerToMove;
+        }
+    }
+}
+
+void Game::handleKeyPressed(const sf::Event& event)
+{
+    // switch the trajectory mode
+    if (event.key.code == sf::Keyboard::P)
+    {
+        m_trajectory.cycleMode();
+    }
+    // toggle fps
+    else if (event.key.code == sf::Keyboard::Tilde)
+    {
+        m_isFpsShown = !m_isFpsShown;
+    }
+    // abandon game
+    else if (event.key.code == sf::Keyboard::Escape && event.key.shift)
+    {
+        m_menu.setMessage("You abandoned the game.", sf::Color::Black);
+        m_state = InMenu;
+    }
+}
+
+// Gets ready to start new game
+void Game::newGame()
+{
+    m_ui.reset();
+    initializeBalls();
+    m_menu.setMystery(m_isMysteryEnabled = false);
+    m_state = PlayerToMove;
+    m_activePlayer = 1;
+    m_soundCue.setPosition(Spec::TABLE_LEFT + 0.5f * Spec::TABLE_WIDTH, 0.0f, Spec::TABLE_BOTTOM);
+    m_soundCue.play();
+}
+
+// once in equilibrium, checks what should be done before the next turn starts
+void Game::nextTurn()
+{
+    // if both cue ball and eight-ball are potted, a game over
+    if (m_balls[Spec::CUE_INDEX].isPotted() && m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+    {
+        switchPlayer(); // bc the other one wins
+        m_menu.setMessage(sf::String{getActivePlayerName()} + "won by fatal foul!", 
+                        m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
+        m_state = InMenu;
+    }
+    // if cue ball is potted, replace it
+    else if (m_balls[Spec::CUE_INDEX].isPotted())
+    {
+        replaceBall(m_balls[Spec::CUE_INDEX]);
+        m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
+        m_soundCue.play();
+        switchPlayer();
+    }
+    // if eight-ball is potted, replace it
+    else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+    {
+        replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
+        m_soundCue.setPosition(m_balls[Spec::EIGHTBALL_INDEX].getPosition().x, 0.0f, m_balls[Spec::EIGHTBALL_INDEX].getPosition().y);
+        m_soundCue.play();
+        switchPlayer();
+    }
+    // the first player gets an extra turn
+    else if (m_activePlayer == 1 && m_wasP1BallPotted && !m_wasP2BallPotted)
+    {
+        // extra turn
+    }
+    // the second player gets an extra turn
+    else if (m_activePlayer == 2 && m_wasP2BallPotted && !m_wasP1BallPotted)
+    {
+        // extra turn
+    }
+    // no extra turn
+    else
+    {
+        switchPlayer();
+    }
+
+    m_state = PlayerToMove;
+}
+
+void Game::switchPlayer()
+{
+    switch (m_activePlayer)
+    {
+    case 1:
+        m_activePlayer = 2;
+        return;
+    case 2:
+        m_activePlayer = 1;
+        return;
+    default:
+        m_activePlayer = 0;
+        return;
+    }    
+}
+
+// launch the cue ball and set corresponding states
+void Game::launchCueBall(const sf::Vector2f& mousePos)
+{
+    sf::Vector2f chargeVelocity = Spec::CHARGE_VELOCITY_COEF * (m_balls[Spec::CUE_INDEX].getPosition() - mousePos);
+    if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_SPEED)
+    {
+        chargeVelocity /= Spec::hypot(chargeVelocity); 
+        chargeVelocity *= Spec::MAX_CHARGE_SPEED;
+    }
+    m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
+    m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
+    m_soundCue.play();
+    m_state = PlayerMotion;
+    m_wasP1BallPotted = false;
+    m_wasP2BallPotted = false;
+}
+
+// replace the given ball (usually, cue or eight-ball) at a random position from the list; keep trying a new position until valid (garanteed)
+void Game::replaceBall(Ball& ball)
+{
+    std::uniform_int_distribution distrib(0, 15);
+    
+    int index;
+    do {
+        index = distrib(*m_rng);
+    } while(!canPlaceBall(Spec::REPLACEMENT_POSITIONS[index]));
+
+    ball.replace(Spec::REPLACEMENT_POSITIONS[index]);
+}
+
+// checks if all balls are stationary/finished playing potting animation
+bool Game::checkEquilibrium()
+{
+    for (const Ball& ball : m_balls)
+    {
+        if (ball.isAnimationPlaying() || (!ball.isPotted() && ball.getVelocity() != sf::Vector2f{0.0f, 0.0f}))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// checks if the new position is outside of all balls
+bool Game::canPlaceBall(const sf::Vector2f& pos)
+{
+    for (const Ball& ball : m_balls)
+    {
+        const float distance = Spec::hypot(ball.getPosition() - pos);
+        if (distance <= 2 * Spec::BALL_RADIUS)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Player 1, PLayer 2, You, Bot, or ??? if invalid; based on active player and presence of bot
 const char* Game::getActivePlayerName()
 {
     switch (m_activePlayer)
@@ -420,63 +508,27 @@ const char* Game::getActivePlayerName()
     }
 }
 
-void Game::replaceBall(Ball& ball)
+// to move, aiming, <empty>, or N/A if invalid
+const char* Game::getStateAsString()
 {
-    std::uniform_int_distribution distrib(0, 15);
-    
-    int index;
-    do {
-        index = distrib(*m_rng);
-    } while(!canPlaceBall(Spec::REPLACEMENT_POSITIONS[index]));
-
-
-    ball.replace(Spec::REPLACEMENT_POSITIONS[index]);
-}
-
-bool Game::canPlaceBall(const sf::Vector2f& pos)
-{
-    for (const Ball& ball : m_balls)
+    switch (m_state)
     {
-        float distance = Spec::hypot(ball.getPosition() - pos);
-        if (distance <= 2 * Spec::BALL_RADIUS)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void Game::newGame()
-{
-    m_ui.reset();
-    initializeBalls();
-    m_menu.setMystery(m_isMysteryEnabled = false);
-    m_state = PlayerToMove;
-    m_activePlayer = 1;
-    m_soundCue.setPosition(0.5f * static_cast<float>(Spec::SCREEN_WIDTH), 0.0f, 0.5f * static_cast<float>(Spec::SCREEN_HEIGHT));
-    m_soundCue.play();
-}
-
-void Game::switchPlayer()
-{
-    switch (m_activePlayer)
-    {
-    case 1:
-        m_activePlayer = 2;
-        return;
-    case 2:
-        m_activePlayer = 1;
-        return;
+    case PlayerToMove:
+        return "to move";
+    case PlayerAiming:
+    case BotAiming:
+        return "aiming";
+    case PlayerMotion:
+        return "";
     default:
-        m_activePlayer = 0;
-        return;
-    }    
+        return "N/A";
+    }
 }
 
+// finds the closest not potted ball of the bot's color to the cue ball; if there is not such one, then the ball is eight-ball 
 sf::Vector2f Game::botFindClosestBall()
 {
-    sf::Vector2f closest = {10'000.f, 10'000.0f};
+    sf::Vector2f closest {10'000.f, 10'000.0f};
     for (const Ball& ball : m_balls)
     {
         if (((m_botPlaysAs == 1 && ball.getType() == Ball::Player1) || (m_botPlaysAs == 2 && ball.getType() == Ball::Player2)) 
@@ -491,20 +543,4 @@ sf::Vector2f Game::botFindClosestBall()
         closest = m_balls[Spec::EIGHTBALL_INDEX].getPosition();
     }
     return closest;
-}
-
-void Game::launchCueBall(const sf::Vector2f& mousePos)
-{
-    sf::Vector2f chargeVelocity = Spec::CHARGE_VELOCITY_COEF * (m_balls[Spec::CUE_INDEX].getPosition() - mousePos);
-    if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_SPEED)
-    {
-        chargeVelocity /= Spec::hypot(chargeVelocity); 
-        chargeVelocity *= Spec::MAX_CHARGE_SPEED;
-    }
-    m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
-    m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
-    m_soundCue.play();
-    m_state = PlayerMotion;
-    m_wasP1BallPotted = false;
-    m_wasP2BallPotted = false;
 }

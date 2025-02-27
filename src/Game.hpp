@@ -18,6 +18,7 @@ class Game
 {
 public:
     explicit Game(const char* path);
+
     void run();
 private:
     enum GameState : std::uint8_t
@@ -31,40 +32,47 @@ private:
     };
 private:
     void initializeBalls();
+
     void gameLoop();
     void update();
     void draw();
+
     void handleEvent(const sf::Event& event);
     void handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f& mousePos);
     void handleKeyPressed(const sf::Event& event);
+
+    void newGame();
     void nextTurn();
+    void switchPlayer();
+
+    void launchCueBall(const sf::Vector2f& mousePos);
+    void replaceBall(Ball& ball);
+
     bool checkEquilibrium();
+    bool canPlaceBall(const sf::Vector2f& pos);
+
     const char* getStateAsString();
     const char* getActivePlayerName();
-    void replaceBall(Ball& ball);
-    bool canPlaceBall(const sf::Vector2f& pos);
-    void newGame();
-    void switchPlayer();
+
     sf::Vector2f botFindClosestBall();
-    void launchCueBall(const sf::Vector2f& mousePos);
 private:
-    // game objects
     sf::RenderWindow m_window;
+    // game objects
     Table m_table;
     Pockets m_pockets;
     std::vector<Ball> m_balls;
-    Trajectory m_trajectory;
     // UI
+    Trajectory m_trajectory;
     FPSCounter m_fpsCounter;
     UI m_ui;
     Menu m_menu;
     // resources
     std::filesystem::path m_path;
     sf::SoundBuffer m_bufferCue;
-    sf::Sound m_soundCue;
     sf::SoundBuffer m_bufferCollision;
     sf::SoundBuffer m_bufferPotting;
+    sf::Sound m_soundCue;
     sf::Font m_font;
     sf::Texture m_textureEightball;
     sf::Texture m_menuInfo;
@@ -79,8 +87,10 @@ private:
     bool m_wasP2BallPotted = false;
     bool m_isFpsShown = false;
     bool m_isMysteryEnabled = false;
+    // bot
     sf::Vector2f m_botMousePos;
     sf::Vector2f m_botMouseShift;
     float m_botAimingProgress = 0.0f;
+    // rng
     std::unique_ptr<std::mt19937> m_rng = std::make_unique<std::mt19937>(std::random_device{}());
 };

@@ -48,11 +48,6 @@ sf::Color Ball::colorFromType(BallType type)
     }
 }
 
-void Ball::draw(sf::RenderWindow& window) const
-{
-    window.draw(m_body);
-}
-
 // Only moves the ball without checking collisions.
 // Friction is applied.
 // If the animation should be played, does that instead.
@@ -124,14 +119,9 @@ void Ball::update(float deltaTime)
     m_soundCollision.setVolume(std::min(std::sqrt(20.0f*Spec::hypot(m_velocity)), 100.0f)); //scales with speed, 100% at v >= 500
 }
 
-// a parabola such that r=R at t=0, r=1.1R at t=0.5T and r=0 at t=T
-float Ball::calculateAnimationRadiusFactor()
+void Ball::draw(sf::RenderWindow& window) const
 {
-    static constexpr float a = -2.4f / (Spec::POTTING_ANIM_DURATION * Spec::POTTING_ANIM_DURATION);
-    static constexpr float b = 1.4f / Spec::POTTING_ANIM_DURATION;
-    static constexpr float c = 1.0f; 
-    const float time = Spec::POTTING_ANIM_DURATION - m_animationDuration;
-    return a * time * time + b * time + c;
+    window.draw(m_body);
 }
 
 // Checks collision with another ball, plays sound if they collide.
@@ -203,12 +193,6 @@ void Ball::checkCollisionWithBorder()
     }
 }
 
-// Is the point with given coordinates within the ball
-bool Ball::isWithinBall(const sf::Vector2f& pos) const
-{
-    return Spec::hypot(pos - getPosition()) <= Spec::BALL_RADIUS;
-}
-
 // Stops the ball and starts the animation.
 void Ball::pot(const sf::Vector2f& pocket)
 {
@@ -232,4 +216,20 @@ void Ball::replace(const sf::Vector2f& pos)
 void Ball::playSound()
 {
     m_soundCollision.play();
+}
+
+// Is the point with given coordinates within the ball
+bool Ball::isWithinBall(const sf::Vector2f& pos) const
+{
+    return Spec::hypot(pos - getPosition()) <= Spec::BALL_RADIUS;
+}
+
+// a parabola such that r=R at t=0, r=1.1R at t=0.5T and r=0 at t=T
+float Ball::calculateAnimationRadiusFactor()
+{
+    static constexpr float a = -2.4f / (Spec::POTTING_ANIM_DURATION * Spec::POTTING_ANIM_DURATION);
+    static constexpr float b = 1.4f / Spec::POTTING_ANIM_DURATION;
+    static constexpr float c = 1.0f; 
+    const float time = Spec::POTTING_ANIM_DURATION - m_animationDuration;
+    return a * time * time + b * time + c;
 }

@@ -3,26 +3,33 @@
 #include <cmath>
 #include <utility>
 
+namespace
+{
+    constexpr float BALL_PREV_OUTLINE_THICKNESS = 1.0f;
+}
+
+// All circular shapes are initialized.
 Trajectory::Trajectory(TrajectoryMode mode) :
-    m_mode(mode)
+    m_mode{mode}
 {
     m_ballPreviews[0].setRadius(Spec::BALL_RADIUS);
     m_ballPreviews[0].setFillColor(sf::Color::Transparent);
     m_ballPreviews[0].setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
     m_ballPreviews[0].setOutlineColor(sf::Color::White);
-    m_ballPreviews[0].setOutlineThickness(1.0f);
+    m_ballPreviews[0].setOutlineThickness(BALL_PREV_OUTLINE_THICKNESS);
     for (size_t i = 1; i < SEGMENTS_MAX; i++)
     {
         m_ballPreviews[i] = m_ballPreviews[0];
     }
 }
 
-// Calculates the 2 segments (and co-parts) of trajectory with reflection off the wall if needed
-// Basically checks which wall the trajectory crosses, if any, and reflects in it
+// Update different segments based on the mode.
 void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos)
 {
     if (m_mode == None)
+    {
         return;
+    }
 
     updateMiddle(chargeStart, mousePos);
 
@@ -39,6 +46,7 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
         updateLateral();
     }
 
+    // If the maximum speed is going to happen, turn red.
     if (Spec::CHARGE_VELOCITY_COEF * Spec::hypot(chargeStart - mousePos) >= Spec::MAX_CHARGE_SPEED)
     {
         setColor(sf::Color::Red);
@@ -49,6 +57,7 @@ void Trajectory::update(const sf::Vector2f& chargeStart, const sf::Vector2f& mou
     }
 }
 
+// Updates middle segments by repeatedly calculating reflections at each step until the max number of segments is reached or it doesn't cross either rail.
 void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2f& mousePos)
 {
     m_segmentsMiddle[0].position = chargeStart;
@@ -59,26 +68,26 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
     {
         float gradient = (m_segmentsMiddle[2*(i-1)].position.y - m_segmentsMiddle[2*(i-1)+1].position.y) / (m_segmentsMiddle[2*(i-1)].position.x - m_segmentsMiddle[2*(i-1)+1].position.x);
 
-        // the end of trajectory is in the ... third and intersects the ... wall
+        // the end of trajectory is in the ... third and intersects the ... rail
         if (m_segmentsMiddle[2*(i-1)+1].position.y < (Spec::TABLE_TOP + Spec::BALL_RADIUS)) // top
         {
             float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
-            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
                 m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
                 m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
             }
-            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
                 m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
                 m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
             }
-            else // top wall
+            else // top rail
             {
                 m_segmentsMiddle[2*i+1].position.x = m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = 2 * (Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.y;
@@ -90,21 +99,21 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
         {
             float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
-            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
                 m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
                 m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
             }
-            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
                 m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
                 m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
             }
-            else // bottom wall
+            else // bottom rail
             {
                 m_segmentsMiddle[2*i+1].position.x = m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = 2 * (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.y;
@@ -114,14 +123,14 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
         }
         else // middle
         {
-            if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+            if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_LEFT + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
                 m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
                 m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
             }
-            else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+            else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
             {
                 m_segmentsMiddle[2*i+1].position.x = 2 * (Spec::TABLE_RIGHT - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)+1].position.x;
                 m_segmentsMiddle[2*i+1].position.y = m_segmentsMiddle[2*(i-1)+1].position.y;
@@ -137,25 +146,25 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
         m_segmentsMiddle[2*i].position = m_segmentsMiddle[2*(i-1)+1].position;
     }
     
-    // doesn't let the last segment go out the table
+    // Doesn't let the last segment go out the table; same as above, but there is only the previous segment.
     size_t i = SEGMENTS_MAX;
     float gradient = (m_segmentsMiddle[2*(i-1)].position.y - m_segmentsMiddle[2*(i-1)+1].position.y) / (m_segmentsMiddle[2*(i-1)].position.x - m_segmentsMiddle[2*(i-1)+1].position.x);
-
+    // the end of trajectory is in the ... third and intersects the ... rail
     if (m_segmentsMiddle[2*(i-1)+1].position.y < (Spec::TABLE_TOP + Spec::BALL_RADIUS)) // top
     {
         float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_TOP + Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
-        if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+        if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
-        else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+        else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
         }
-        else // top wall
+        else // top rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_TOP + Spec::BALL_RADIUS)) / gradient;
             m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_TOP + Spec::BALL_RADIUS;
@@ -165,17 +174,17 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
     {
         float x_intercept = m_segmentsMiddle[2*(i-1)].position.x + ((Spec::TABLE_BOTTOM - Spec::BALL_RADIUS) - m_segmentsMiddle[2*(i-1)].position.y) / gradient;
 
-        if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+        if (x_intercept < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
-        else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+        else if (x_intercept > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
         }
-        else // bottom wall
+        else // bottom rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.x = m_segmentsMiddle[2*(i-1)].position.x - (m_segmentsMiddle[2*(i-1)].position.y - (Spec::TABLE_BOTTOM - Spec::BALL_RADIUS)) / gradient;
             m_segmentsMiddle[2*(i-1)+1].position.y = Spec::TABLE_BOTTOM - Spec::BALL_RADIUS;
@@ -183,12 +192,12 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
     }
     else // middle
     {
-        if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left wall
+        if (m_segmentsMiddle[2*(i-1)+1].position.x < (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) // left rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_LEFT + Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_LEFT + Spec::BALL_RADIUS;
         }
-        else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right wall
+        else if (m_segmentsMiddle[2*(i-1)+1].position.x > (Spec::TABLE_RIGHT- Spec::BALL_RADIUS)) // right rail
         {
             m_segmentsMiddle[2*(i-1)+1].position.y = m_segmentsMiddle[2*(i-1)].position.y - (m_segmentsMiddle[2*(i-1)].position.x - (Spec::TABLE_RIGHT - Spec::BALL_RADIUS)) * gradient;
             m_segmentsMiddle[2*(i-1)+1].position.x = Spec::TABLE_RIGHT - Spec::BALL_RADIUS;
@@ -200,6 +209,7 @@ void Trajectory::updateMiddle(const sf::Vector2f& chargeStart, const sf::Vector2
     }
 }
 
+// Based on the middle segment, updates the left and right segments by shifting the middle by the ball radius.
 void Trajectory::updateLateral()
 {
     for (size_t i = 0; i < m_numSegmentsNeeded; i++)
@@ -217,11 +227,15 @@ void Trajectory::updateLateral()
     }
 }
 
+// Draws different segments based on the mode.
 void Trajectory::draw(sf::RenderWindow& window)
 {
     if (m_mode == None)
+    {
         return;
+    }
     
+    // middle
     if (m_mode == Minimum || m_mode == Normal || m_mode == All)
     {
         for (size_t i = 0; i < m_numSegmentsNeeded; i++)
@@ -230,6 +244,7 @@ void Trajectory::draw(sf::RenderWindow& window)
         }
     }
 
+    // lateral
     if (m_mode == Detailed || m_mode == All)
     {
         for (size_t i = 0; i < m_numSegmentsNeeded; i++)
@@ -239,6 +254,7 @@ void Trajectory::draw(sf::RenderWindow& window)
         }
     }
 
+    // circles
     if (m_mode == Normal || m_mode == Detailed || m_mode == All)
     {
         for (size_t i = 0; i < m_numSegmentsNeeded; i++)
@@ -270,6 +286,7 @@ void Trajectory::cycleMode()
     }
 }
 
+// Sets the color of all elements, invoked when comparing with max charge speed.
 void Trajectory::setColor(const sf::Color& color)
 {
     for (size_t i = 0; i < m_numSegmentsNeeded; i++)
