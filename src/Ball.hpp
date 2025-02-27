@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+// A single ball of a type with physics, display, and collision sound.
 class Ball
 {
 public:
@@ -19,38 +20,38 @@ public:
 
     static sf::Color colorFromType(BallType type);
 
-    void draw(sf::RenderWindow& window) const;
     void update(float deltaTime);
-    void playSound();
-
+    void draw(sf::RenderWindow& window) const;
+    
     void checkCollisionWithBall(Ball& other);
     void checkCollisionWithBorder();
+    
     void pot(const sf::Vector2f& pocket);
     void replace(const sf::Vector2f& pos);
-    bool isWithinBall(float x, float y);
-    bool isWithinBall(const sf::Vector2f& pos);
-
+    void playSound();
+    
+    void setVelocity(sf::Vector2f velocity)         { m_velocity = velocity; }
     void setScoredPosition(const sf::Vector2f& pos) { m_scoredPosition = pos; }
-    void setPosition(const sf::Vector2f& pos) { m_body.setPosition(pos); }
-
-    void scaleVelocity(float xScale, float yScale);
-    void setVelocity(sf::Vector2f velocity) { m_velocity = velocity; }
-
+    
     sf::Vector2f getVelocity()  const { return m_velocity; }
     sf::Vector2f getPosition()  const { return m_body.getPosition(); }
     BallType getType()          const { return m_type; }
+    float getVolume()           const { return m_soundCollision.getVolume(); }
     bool isPotted()             const { return m_isPotted; }
     bool isAnimationPlaying()   const { return m_animationDuration != 0.0f; }
-    float getVolume()           const { return m_soundCollision.getVolume(); }
+    bool isWithinBall(const sf::Vector2f& pos) const;
 private:
-    float calculateAnimationRadius();
+    float calculateAnimationRadiusFactor();
 private:
+    // Physics/state
     sf::CircleShape m_body;
     sf::Vector2f m_velocity;
-    BallType m_type;
+    const BallType m_type;
     bool m_isPotted = false;
+    // Amimation
     float m_animationDuration = 0.0f;
     sf::Vector2f m_animationShift{0.0f, 0.0f};
     sf::Vector2f m_scoredPosition{0.0f, 0.0f};
+    // Sound
     sf::Sound m_soundCollision;
 };

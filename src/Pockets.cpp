@@ -1,5 +1,9 @@
 #include "Pockets.hpp"
-#include <cmath>
+
+namespace
+{
+    constexpr float POTTING_SOUND_VOLUME = 40.0f;
+}
 
 Pockets::Pockets()
 {
@@ -11,7 +15,7 @@ Pockets::Pockets()
         m_pockets[i].setFillColor(sf::Color::Black);
     }
     m_soundPotting.setAttenuation(0.0f);
-    m_soundPotting.setVolume(40.0f);
+    m_soundPotting.setVolume(POTTING_SOUND_VOLUME);
 }
 
 void Pockets::setBuffer(const sf::SoundBuffer& buffer)
@@ -27,6 +31,8 @@ void Pockets::draw(sf::RenderWindow& window)
     }
 }
 
+// Checks if the ball is potted.
+// If so, makes it potted, plays the sound of potting at the right pocket, and returns true.
 bool Pockets::checkBallPotted(Ball& ball)
 {
     for (size_t i = 0; i < Spec::NUM_POCKETS; i++)

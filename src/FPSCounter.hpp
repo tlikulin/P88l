@@ -8,6 +8,7 @@ class FPSCounter
 public:
     FPSCounter();
     void setFont(const sf::Font& font);
+    
     void update(float deltaTime);
     void draw(sf::RenderWindow& window);
 private:
