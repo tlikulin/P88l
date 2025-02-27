@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
+// A simple fps counter displayed in the top-left corner, updated with deltaTime.
 class FPSCounter
 {
 public:
@@ -12,5 +13,5 @@ public:
 private:
     sf::Text m_text;
     float m_elapsed = 0.0f;
-    int m_frames = 0;  
+    unsigned int m_frames = 0;  
 };

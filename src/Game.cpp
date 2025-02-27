@@ -142,14 +142,14 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
     }
     else if (m_state == InMenu
             && event.mouseButton.button == sf::Mouse::Left
-            && m_menu.isWithinButton1(mousePos))
+            && m_menu.isWithinButtonMode1(mousePos))
     {
         m_botPlaysAs = 0;
         newGame();
     }
     else if (m_state == InMenu
             && event.mouseButton.button == sf::Mouse::Left
-            && m_menu.isWithinButton2(mousePos))
+            && m_menu.isWithinButtonMode2(mousePos))
     {
         std::uniform_int_distribution<> distrib{1, 2};
         m_botPlaysAs = distrib(*m_rng);
@@ -221,7 +221,7 @@ void Game::update()
 
                     if(m_ui.update(ball))
                     {
-                        m_menu.setMessage(sf::String{getActivePlayerName()} + " won!\n(by potting)",
+                        m_menu.setMessage(sf::String{getActivePlayerName()} + " won by potting!",
                                             m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
                         m_state = InMenu;
                         return;
@@ -292,7 +292,7 @@ void Game::nextTurn()
     {
         m_state = InMenu;
         switchPlayer();
-        m_menu.setMessage(sf::String{getActivePlayerName()} + "won!\n(by fatal foul)", 
+        m_menu.setMessage(sf::String{getActivePlayerName()} + "won by fatal foul!", 
                           m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
     } 
     else if (m_balls[Spec::CUE_INDEX].isPotted())
