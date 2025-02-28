@@ -35,6 +35,11 @@ Game::Game(const char* path) :
     settings.antialiasingLevel = 8;
     m_window.create(sf::VideoMode(Spec::SCREEN_WIDTH, Spec::SCREEN_HEIGHT), Spec::TITLE, sf::Style::Titlebar | sf::Style::Close, settings);
     m_window.setFramerateLimit(200);
+    {
+        sf::Image icon;
+        icon.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
+        m_window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+    }
     // reserve space for all balls
     m_balls.reserve(Spec::BALLS_TOTAL);
 }
@@ -267,8 +272,12 @@ void Game::handleEvent(const sf::Event& event)
 
 void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& mousePos)
 {
+    if (event.mouseButton.button != sf::Mouse::Left)
+    {
+        return;
+    }
     // if in menu, check if any menu button is hit
-    if (m_state == InMenu && event.mouseButton.button == sf::Mouse::Left)
+    if (m_state == InMenu)
     {
         // 2 players
         if (m_menu.isWithinButtonMode1(mousePos))
@@ -294,7 +303,6 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
     }
     // start aiming if pressed inside cue ball
     else if (m_state == PlayerToMove
-        && event.mouseButton.button == sf::Mouse::Left 
         && !m_balls[Spec::CUE_INDEX].isPotted()
         && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
     {
