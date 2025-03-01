@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 
+// The class that calculates and displays the trajectory preview.
 class Trajectory
 {
 public:

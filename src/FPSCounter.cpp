@@ -3,10 +3,10 @@
 
 namespace
 {
-    const sf::Color FPS_COLOR = sf::Color::Blue;
-    constexpr unsigned int FPS_FONT_SIZE = 18u;
-    const sf::String FPS_INITIAL_STRING {"---"};
-    constexpr float FPS_UPDATE_EVERY = 1.0f;
+    constexpr unsigned int FPS_FONT_SIZE    = 18u;
+    const sf::Color FPS_COLOR               = sf::Color::Blue;
+    const sf::String FPS_INITIAL_STRING     {"---"};
+    constexpr float FPS_UPDATE_EVERY        = 1.0f;
 }
 
 FPSCounter::FPSCounter()

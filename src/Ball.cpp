@@ -5,9 +5,16 @@
 
 namespace
 {
-    constexpr float ROTATION_COEF   = 0.3f;
-    constexpr float MINDISTANCE     = 360.0f;
-    constexpr float ATTENUATION     = 0.3f;  
+    // acoustics
+    constexpr float MINDISTANCE                 = 360.0f;
+    constexpr float ATTENUATION                 = 0.3f;
+    // graphics
+    constexpr float POTTING_ANIM_DURATION       = 1.2f;
+    constexpr float ROTATION_COEF               = 0.3f;
+    // physics
+    constexpr float FRICTION_COEF               = 60.0f;
+    constexpr float SPEED_FRICTION_COEF         = 0.00065f;
+    constexpr float REBOUND_COEF                = 0.95f;
 }
 
 // Complete initialization of a ball.
@@ -38,7 +45,7 @@ sf::Color Ball::colorFromType(BallType type)
     case Cue:
         return sf::Color::White;
     case Eightball:
-        return Spec::EIGHTBALL_COLOR;
+        return sf::Color::Black;
     case Player1:
         return Spec::PLAYER1_COLOR;
     case Player2:
@@ -74,7 +81,7 @@ void Ball::update(float deltaTime)
                 const float radius = Spec::BALL_RADIUS * calculateAnimationRadiusFactor();
                 m_body.setRadius(radius);
                 m_body.setOrigin(radius, radius);
-                m_body.move(m_animationShift * deltaTime / Spec::POTTING_ANIM_DURATION);
+                m_body.move(m_animationShift * deltaTime / POTTING_ANIM_DURATION);
             }
         }
 
@@ -83,18 +90,17 @@ void Ball::update(float deltaTime)
 
     //friction a = -(A + Bv^2) is applied
     const float magnitude = Spec::hypot(m_velocity);
-    const float coef = Spec::FRICTION_COEF + Spec::SPEED_FRICTION_COEF * magnitude * magnitude;
+    const float coef = FRICTION_COEF + SPEED_FRICTION_COEF * magnitude * magnitude;
 
     if (magnitude < coef * deltaTime)
     {
-        m_velocity.x = 0;
-        m_velocity.y = 0;
+        m_velocity *= 0.0f;
     }
     else
     {
         const float angle = std::abs(std::atan(m_velocity.y / m_velocity.x));
         // x component
-        if (m_velocity.x > 0)
+        if (m_velocity.x > 0.0f)
         {
             m_velocity.x -=  coef * std::cos(angle) * deltaTime;
         }
@@ -103,7 +109,7 @@ void Ball::update(float deltaTime)
             m_velocity.x +=  coef * std::cos(angle) * deltaTime;
         }
         // y component
-        if (m_velocity.y > 0)
+        if (m_velocity.y > 0.0f)
         {
             m_velocity.y -=  coef * std::sin(angle) * deltaTime;
         }
@@ -116,7 +122,7 @@ void Ball::update(float deltaTime)
     m_body.move(m_velocity * deltaTime);
     m_body.rotate(ROTATION_COEF * Spec::hypot(m_velocity) * deltaTime);
     m_soundCollision.setPosition(getPosition().x, 0.0f, getPosition().y);
-    m_soundCollision.setVolume(std::min(std::sqrt(20.0f*Spec::hypot(m_velocity)), 100.0f)); //scales with speed, 100% at v >= 500
+    m_soundCollision.setVolume(std::min(std::sqrt(20.0f * Spec::hypot(m_velocity)), 100.0f)); //scales with speed, 100% at v >= 500
 }
 
 void Ball::draw(sf::RenderWindow& window) const
@@ -135,7 +141,7 @@ void Ball::checkCollisionWithBall(Ball& other)
     }
 
     sf::Vector2f vec1to2 = other.getPosition() - getPosition();
-    const float intersection = 2 * Spec::BALL_RADIUS - Spec::hypot(vec1to2);
+    const float intersection = 2.0f * Spec::BALL_RADIUS - Spec::hypot(vec1to2);
     if (intersection <= 0.0f) 
     {
         return;
@@ -143,7 +149,7 @@ void Ball::checkCollisionWithBall(Ball& other)
 
     sf::Vector2f otherVelocity = other.getVelocity();
     vec1to2 /= Spec::hypot(vec1to2); //now unit vector
-    const float angle = vec1to2.y > 0 ? std::acos(vec1to2.x) : -std::acos(vec1to2.x);
+    const float angle = vec1to2.y > 0.0f ? std::acos(vec1to2.x) : -std::acos(vec1to2.x);
 
     // finds projections of the velocities onto the the line connecting the centres (rotates by 'angle')
     sf::Vector2f u1_proj = sf::Vector2f{m_velocity.x*std::cos(-angle) - m_velocity.y*std::sin(-angle), m_velocity.x*std::sin(-angle) + m_velocity.y*std::cos(-angle)};
@@ -155,8 +161,8 @@ void Ball::checkCollisionWithBall(Ball& other)
         || (u1_proj.x <= 0.0f && u2_proj.x < 0.0f && std::abs(u1_proj.x) < std::abs(u2_proj.x)))
     {
         std::swap(u1_proj.x, u2_proj.x);
-        u1_proj.x *= Spec::REBOUND_COEF;
-        u2_proj.x *= Spec::REBOUND_COEF;
+        u1_proj.x *= REBOUND_COEF;
+        u2_proj.x *= REBOUND_COEF;
 
         //from projections back to normal velocities (rotates back)
         m_velocity = sf::Vector2f{u1_proj.x*std::cos(angle) - u1_proj.y*std::sin(angle), u1_proj.x*std::sin(angle) + u1_proj.y*std::cos(angle)};
@@ -181,14 +187,14 @@ void Ball::checkCollisionWithBorder()
     if ((getPosition().y + Spec::BALL_RADIUS > Spec::TABLE_BOTTOM && getVelocity().y > 0.0f)
         || (getPosition().y - Spec::BALL_RADIUS < Spec::TABLE_TOP && getVelocity().y < 0.0f))
     {
-        m_velocity.y *= -Spec::REBOUND_COEF;
+        m_velocity.y *= -REBOUND_COEF;
         m_soundCollision.play();
     }
     //collides with the right or left border
     else if ((getPosition().x + Spec::BALL_RADIUS > Spec::TABLE_RIGHT && getVelocity().x > 0.0f)
         || (getPosition().x - Spec::BALL_RADIUS < Spec::TABLE_LEFT && getVelocity().x < 0.0f))
     {
-        m_velocity.x *= -Spec::REBOUND_COEF;
+        m_velocity.x *= -REBOUND_COEF;
         m_soundCollision.play();
     }
 }
@@ -198,7 +204,7 @@ void Ball::pot(const sf::Vector2f& pocket)
 {
     m_isPotted = true;
     m_velocity *= 0.0f;
-    m_animationDuration = Spec::POTTING_ANIM_DURATION;
+    m_animationDuration = POTTING_ANIM_DURATION;
     m_animationShift = pocket - m_body.getPosition();
 }
 
@@ -227,9 +233,9 @@ bool Ball::isWithinBall(const sf::Vector2f& pos) const
 // a parabola such that r=R at t=0, r=1.1R at t=0.5T and r=0 at t=T
 float Ball::calculateAnimationRadiusFactor()
 {
-    static constexpr float a = -2.4f / (Spec::POTTING_ANIM_DURATION * Spec::POTTING_ANIM_DURATION);
-    static constexpr float b = 1.4f / Spec::POTTING_ANIM_DURATION;
+    static constexpr float a = -2.4f / (POTTING_ANIM_DURATION * POTTING_ANIM_DURATION);
+    static constexpr float b = 1.4f / POTTING_ANIM_DURATION;
     static constexpr float c = 1.0f; 
-    const float time = Spec::POTTING_ANIM_DURATION - m_animationDuration;
+    const float time = POTTING_ANIM_DURATION - m_animationDuration;
     return a * time * time + b * time + c;
 }

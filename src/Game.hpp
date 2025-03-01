@@ -14,6 +14,7 @@
 #include "UI.hpp"
 #include "Menu.hpp"
 
+// The main class that owns all resources, objects, and core game logic.
 class Game
 {
 public:

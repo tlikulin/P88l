@@ -6,20 +6,24 @@ namespace
 {
     //text
     const sf::String SEPARATOR_TEXT         {":"};
+    constexpr unsigned int SCORE_CHAR_SIZE  = 40u;
     constexpr unsigned int STATE_FONT_SIZE  = 26u;
     constexpr float TEXT_OUTLINE_THICKNESS  = 1.5f;
     constexpr float SLOTS_OUTLINE_THICKNESS = 1.8f;
     //positions
+    const sf::Vector2f SCORE1_POS                   {580.0f, 25.0f};
+    const sf::Vector2f SCORE2_POS                   {700.0f, 25.0f}; 
+    const sf::Vector2f SCORE_SEP_POS                {640.0f, 20.0f}; 
     const sf::Vector2f STATE_PLAYER1_POS            {70.0f, 20.0f};
     const sf::Vector2f STATE_PLAYER2_POS            {1130.0f, 20.0f};
     const sf::Vector2f SLOTS_PLAYER1_START          {525.0f ,50.0f};
     const sf::Vector2f SLOTS_PLAYER2_START          {775.0f ,50.0f};
-    constexpr float SLOTS_SEPARATION                = 3.2f * Spec::BALL_RADIUS;
     const sf::Vector2f SLOTS_EIGHTBALL_POS          {630.0f, 80.0f};
     const sf::Vector2f SLOTS_CUEBALL_POS            {673.0f, 80.0f};
     const sf::Vector2f EIGHTBALL_READY_PLAYER1_POS  {612.0f, 62.0f};
     const sf::Vector2f EIGHTBALL_READY_PLAYER2_POS  {630.0f, 62.0f};
     const sf::Vector2f EIGHTBALL_READY_SIZE         {18.0f, 36.0f};
+    constexpr float SLOTS_SEPARATION                = 3.2f * Spec::BALL_RADIUS;
     //colors (alpha reduced to half)
     const sf::Color PLAYER1_COLOR_CONTOUR   {Spec::PLAYER1_COLOR.toInteger() & 0xffffff88};
     const sf::Color PLAYER2_COLOR_CONTOUR   {Spec::PLAYER2_COLOR.toInteger() & 0xffffff88};
@@ -27,26 +31,26 @@ namespace
 
 //first 7 balls - player1, next 7 balls - player2, then eight-ball, then cue ball; 16 in total
 UI::UI() :
-    m_ballSlots{2 * Spec::BALLS_PER_PLAYER + 2, sf::CircleShape{Spec::BALL_RADIUS}}
+    m_ballSlots{Spec::BALLS_TOTAL, sf::CircleShape{Spec::BALL_RADIUS}}
 {
-    m_textPlayer1Score.setCharacterSize(Spec::SCORE_CHAR_SIZE);
+    m_textPlayer1Score.setCharacterSize(SCORE_CHAR_SIZE);
     m_textPlayer1Score.setString(std::to_string(m_player1));
     m_textPlayer1Score.setFillColor(Spec::PLAYER1_COLOR);
-    m_textPlayer1Score.setPosition(Spec::SCORE1_POS);
+    m_textPlayer1Score.setPosition(SCORE1_POS);
     m_textPlayer1Score.setOutlineThickness(TEXT_OUTLINE_THICKNESS);
     m_textPlayer1Score.setOutlineColor(PLAYER1_COLOR_CONTOUR);
 
-    m_textPlayer2Score.setCharacterSize(Spec::SCORE_CHAR_SIZE);
+    m_textPlayer2Score.setCharacterSize(SCORE_CHAR_SIZE);
     m_textPlayer2Score.setString(std::to_string(m_player2));
     m_textPlayer2Score.setFillColor(Spec::PLAYER2_COLOR);
-    m_textPlayer2Score.setPosition(Spec::SCORE2_POS);
+    m_textPlayer2Score.setPosition(SCORE2_POS);
     m_textPlayer2Score.setOutlineThickness(TEXT_OUTLINE_THICKNESS);
     m_textPlayer2Score.setOutlineColor(PLAYER2_COLOR_CONTOUR);
 
-    m_textSeparator.setCharacterSize(Spec::SCORE_CHAR_SIZE);
+    m_textSeparator.setCharacterSize(SCORE_CHAR_SIZE);
     m_textSeparator.setString(SEPARATOR_TEXT);
     m_textSeparator.setFillColor(sf::Color::Black);
-    m_textSeparator.setPosition(Spec::SCORE_SEP_POS);
+    m_textSeparator.setPosition(SCORE_SEP_POS);
 
     m_textPlayer1State.setCharacterSize(STATE_FONT_SIZE);
     m_textPlayer1State.setFillColor(Spec::PLAYER1_COLOR); 
@@ -84,7 +88,7 @@ UI::UI() :
     // eight-ball
     m_ballSlots[i].setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
     m_ballSlots[i].setFillColor(sf::Color::Transparent);
-    m_ballSlots[i].setOutlineColor(Spec::EIGHTBALL_COLOR);
+    m_ballSlots[i].setOutlineColor(sf::Color::Black);
     m_ballSlots[i].setOutlineThickness(SLOTS_OUTLINE_THICKNESS);
     m_ballSlots[i].setPosition(SLOTS_EIGHTBALL_POS);
     i++;

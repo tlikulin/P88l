@@ -1,10 +1,42 @@
 #include "Game.hpp"
 #include "Spec.hpp"
 #include <cmath>
+#include <numbers>
 
 namespace
 {
-    float botAimingTime = 1.5f;
+    // fixed incdices
+    constexpr size_t CUE_INDEX                  = 0;
+    constexpr size_t EIGHTBALL_INDEX            = 11;
+    // inital ball postions
+    const sf::Vector2f BALL_SPACING             {std::numbers::sqrt3_v<float> * Spec::BALL_RADIUS, Spec::BALL_RADIUS};
+    const sf::Vector2f BALL_TOPLEFT_POS         {Spec::TABLE_LEFT + 0.25f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.5f * Spec::TABLE_HEIGHT - 4.0f * Spec::BALL_RADIUS};
+    constexpr float CUE_POS_X                   = Spec::TABLE_LEFT + 0.75f * Spec::TABLE_WIDTH;
+    constexpr float CUE_POS_Y_MIN               = Spec::TABLE_TOP + 0.3f * Spec::TABLE_HEIGHT;
+    constexpr float CUE_POS_Y_MAX               = Spec::TABLE_TOP + 0.7f * Spec::TABLE_HEIGHT;
+    // replacement
+    constexpr size_t NUM_REPLACEMENT_POSITIONS  = 16;
+    const std::array<sf::Vector2f, NUM_REPLACEMENT_POSITIONS> REPLACEMENT_POSITIONS{{
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.4f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.6f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT},
+        {Spec::TABLE_LEFT + 0.6f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT}, 
+        {Spec::TABLE_LEFT + 0.8f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.8f * Spec::TABLE_HEIGHT}
+    }};
+    // misc
+    const sf::Color BG_COLOR                    {0xb8b8b8ff};
+    constexpr float botAimingTime               = 1.5f;
 }
 
 Game::Game(const char* path) :
@@ -61,20 +93,20 @@ void Game::initializeBalls()
     }
 
     std::uniform_int_distribution distrib{0, 1};
-    std::uniform_real_distribution<float> rdistrib{Spec::CUE_POS_Y_MIN, Spec::CUE_POS_Y_MAX};
+    std::uniform_real_distribution<float> rdistrib{CUE_POS_Y_MIN, CUE_POS_Y_MAX};
     // cue ball
-    m_balls.emplace_back(sf::Vector2f{Spec::CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr, m_bufferCollision);
+    m_balls.emplace_back(sf::Vector2f{CUE_POS_X, rdistrib(*m_rng)}, Ball::Cue, nullptr, m_bufferCollision);
 
     size_t player1Left = Spec::BALLS_PER_PLAYER;
     size_t player2Left = Spec::BALLS_PER_PLAYER;
     size_t currColumn = 5;
     size_t currIndex = 0;
-    sf::Vector2f pos = Spec::BALL_TOPLEFT_POS;
+    sf::Vector2f pos = BALL_TOPLEFT_POS;
     Ball::BallType type;
-    // player balls and eight-ball
+    // player balls and eight-ball, in a triangle, going from top to bottom, then from left to right 
     for (size_t i = 1; i < Spec::BALLS_TOTAL; i++)
     {
-        if (i == Spec::EIGHTBALL_INDEX)
+        if (i == EIGHTBALL_INDEX)
         {
             type = Ball::Eightball;
         }
@@ -100,7 +132,7 @@ void Game::initializeBalls()
         {
             currColumn--;
             currIndex = 0;
-            pos += sf::Vector2f{Spec::BALL_SPACING, Spec::BALL_RADIUS};
+            pos += BALL_SPACING;
         }
     }
 }
@@ -172,7 +204,7 @@ void Game::update()
         break;
     // while aiming, only the trajectory is updated
     case PlayerAiming:
-        m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
+        m_trajectory.update(m_balls[CUE_INDEX].getPosition(), static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window)));
         break;
     // simulate gradual change in trajectory while the bot is aiming
     case BotAiming:
@@ -186,7 +218,7 @@ void Game::update()
         else
         {
             m_botMousePos += m_botMouseShift * m_deltaTime / botAimingTime;
-            m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
+            m_trajectory.update(m_balls[CUE_INDEX].getPosition(), m_botMousePos);
         }
         break;
     // if the active player is bot, set the final aiming position at the closest ball of their color (or eight-ball when ready) and add some random shift and power; nothing otherwise
@@ -196,14 +228,14 @@ void Game::update()
             std::uniform_real_distribution<float> distribPower{0.65f, 1.2f};
             std::uniform_real_distribution<float> distribSpread{-7.5f, 7.5f};
 
-            m_botMousePos = m_balls[Spec::CUE_INDEX].getPosition();
-            m_botMouseShift = m_balls[Spec::CUE_INDEX].getPosition() - botFindClosestBall();
+            m_botMousePos = m_balls[CUE_INDEX].getPosition();
+            m_botMouseShift = m_balls[CUE_INDEX].getPosition() - botFindClosestBall();
             m_botMouseShift /= Spec::hypot(m_botMouseShift); // now unit
             m_botMouseShift *= distribPower(*m_rng) * (Spec::MAX_CHARGE_SPEED / Spec::CHARGE_VELOCITY_COEF); // random power
             m_botMouseShift.x += distribSpread(*m_rng); // random spread
             m_botMouseShift.y += distribSpread(*m_rng);
             m_botAimingProgress = 0.0f;
-            m_trajectory.update(m_balls[Spec::CUE_INDEX].getPosition(), m_botMousePos);
+            m_trajectory.update(m_balls[CUE_INDEX].getPosition(), m_botMousePos);
             m_state = BotAiming;
         }
         break;
@@ -218,7 +250,7 @@ void Game::update()
 // Draws different objects depending on the game state
 void Game::draw()
 {
-    m_window.clear(Spec::BG_COLOR);
+    m_window.clear(BG_COLOR);
     // while in menu, only menu is displayed
     if (m_state == InMenu)
     {
@@ -303,8 +335,8 @@ void Game::handleMouseButtonPressed(const sf::Event& event, const sf::Vector2f& 
     }
     // start aiming if pressed inside cue ball
     else if (m_state == PlayerToMove
-        && !m_balls[Spec::CUE_INDEX].isPotted()
-        && m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
+        && !m_balls[CUE_INDEX].isPotted()
+        && m_balls[CUE_INDEX].isWithinBall(mousePos))
     {
         m_state = PlayerAiming;
     }
@@ -316,7 +348,7 @@ void Game::handleMouseButtonReleased(const sf::Event& event, const sf::Vector2f&
     if (m_state == PlayerAiming && event.mouseButton.button == sf::Mouse::Left)
     {
         // launch only if outside the cue ball
-        if (!m_balls[Spec::CUE_INDEX].isWithinBall(mousePos))
+        if (!m_balls[CUE_INDEX].isWithinBall(mousePos))
         {
             launchCueBall(mousePos);
         }
@@ -363,7 +395,7 @@ void Game::newGame()
 void Game::nextTurn()
 {
     // if both cue ball and eight-ball are potted, a game over
-    if (m_balls[Spec::CUE_INDEX].isPotted() && m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+    if (m_balls[CUE_INDEX].isPotted() && m_balls[EIGHTBALL_INDEX].isPotted())
     {
         switchPlayer(); // bc the other one wins
         m_menu.setMessage(sf::String{getActivePlayerName()} + "won by fatal foul!", 
@@ -371,18 +403,18 @@ void Game::nextTurn()
         m_state = InMenu;
     }
     // if cue ball is potted, replace it
-    else if (m_balls[Spec::CUE_INDEX].isPotted())
+    else if (m_balls[CUE_INDEX].isPotted())
     {
-        replaceBall(m_balls[Spec::CUE_INDEX]);
-        m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
+        replaceBall(m_balls[CUE_INDEX]);
+        m_soundCue.setPosition(m_balls[CUE_INDEX].getPosition().x, 0.0f, m_balls[CUE_INDEX].getPosition().y);
         m_soundCue.play();
         switchPlayer();
     }
     // if eight-ball is potted, replace it
-    else if (m_balls[Spec::EIGHTBALL_INDEX].isPotted())
+    else if (m_balls[EIGHTBALL_INDEX].isPotted())
     {
-        replaceBall(m_balls[Spec::EIGHTBALL_INDEX]);
-        m_soundCue.setPosition(m_balls[Spec::EIGHTBALL_INDEX].getPosition().x, 0.0f, m_balls[Spec::EIGHTBALL_INDEX].getPosition().y);
+        replaceBall(m_balls[EIGHTBALL_INDEX]);
+        m_soundCue.setPosition(m_balls[EIGHTBALL_INDEX].getPosition().x, 0.0f, m_balls[EIGHTBALL_INDEX].getPosition().y);
         m_soundCue.play();
         switchPlayer();
     }
@@ -424,14 +456,14 @@ void Game::switchPlayer()
 // launch the cue ball and set corresponding states
 void Game::launchCueBall(const sf::Vector2f& mousePos)
 {
-    sf::Vector2f chargeVelocity = Spec::CHARGE_VELOCITY_COEF * (m_balls[Spec::CUE_INDEX].getPosition() - mousePos);
+    sf::Vector2f chargeVelocity = Spec::CHARGE_VELOCITY_COEF * (m_balls[CUE_INDEX].getPosition() - mousePos);
     if (Spec::hypot(chargeVelocity) > Spec::MAX_CHARGE_SPEED)
     {
         chargeVelocity /= Spec::hypot(chargeVelocity); 
         chargeVelocity *= Spec::MAX_CHARGE_SPEED;
     }
-    m_balls[Spec::CUE_INDEX].setVelocity(chargeVelocity);
-    m_soundCue.setPosition(m_balls[Spec::CUE_INDEX].getPosition().x, 0.0f, m_balls[Spec::CUE_INDEX].getPosition().y);
+    m_balls[CUE_INDEX].setVelocity(chargeVelocity);
+    m_soundCue.setPosition(m_balls[CUE_INDEX].getPosition().x, 0.0f, m_balls[CUE_INDEX].getPosition().y);
     m_soundCue.play();
     m_state = PlayerMotion;
     m_wasP1BallPotted = false;
@@ -441,14 +473,14 @@ void Game::launchCueBall(const sf::Vector2f& mousePos)
 // replace the given ball (usually, cue or eight-ball) at a random position from the list; keep trying a new position until valid (garanteed)
 void Game::replaceBall(Ball& ball)
 {
-    std::uniform_int_distribution distrib(0, 15);
+    std::uniform_int_distribution distrib(0, static_cast<int>(NUM_REPLACEMENT_POSITIONS - 1));
     
     int index;
     do {
         index = distrib(*m_rng);
-    } while(!canPlaceBall(Spec::REPLACEMENT_POSITIONS[index]));
+    } while(!canPlaceBall(REPLACEMENT_POSITIONS[index]));
 
-    ball.replace(Spec::REPLACEMENT_POSITIONS[index]);
+    ball.replace(REPLACEMENT_POSITIONS[index]);
 }
 
 // checks if all balls are stationary/finished playing potting animation
@@ -541,14 +573,14 @@ sf::Vector2f Game::botFindClosestBall()
     {
         if (((m_botPlaysAs == 1 && ball.getType() == Ball::Player1) || (m_botPlaysAs == 2 && ball.getType() == Ball::Player2)) 
             && !ball.isPotted() 
-            && Spec::hypot(ball.getPosition() - m_balls[Spec::CUE_INDEX].getPosition()) < Spec::hypot(closest - m_balls[Spec::CUE_INDEX].getPosition()))
+            && Spec::hypot(ball.getPosition() - m_balls[CUE_INDEX].getPosition()) < Spec::hypot(closest - m_balls[CUE_INDEX].getPosition()))
         {
             closest = ball.getPosition();
         }
     }
     if (closest == sf::Vector2f{10'000.f, 10'000.0f})
     {
-        closest = m_balls[Spec::EIGHTBALL_INDEX].getPosition();
+        closest = m_balls[EIGHTBALL_INDEX].getPosition();
     }
     return closest;
 }

@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "Spec.hpp"
 #include "Ball.hpp"
 #include <array>
 
@@ -16,7 +15,10 @@ public:
     void draw(sf::RenderWindow& window);
 
     bool checkBallPotted(Ball& ball);
+public:
+    static constexpr size_t NUM_POCKETS = 6;
 private:
-    std::array<sf::CircleShape, Spec::NUM_POCKETS> m_pockets;
+
+    std::array<sf::CircleShape, NUM_POCKETS> m_pockets;
     sf::Sound m_soundPotting;
 };
