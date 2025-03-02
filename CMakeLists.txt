@@ -21,16 +21,16 @@ FetchContent_Declare(
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(P88l src/main.cpp src/Ball.cpp src/FPSCounter.cpp src/Game.cpp src/Menu.cpp src/Pockets.cpp src/Table.cpp src/Trajectory.cpp src/UI.cpp)
-target_compile_features(P88l PRIVATE cxx_std_20)
-target_link_libraries(P88l PRIVATE sfml-graphics sfml-audio sfml-system sfml-window)
-
-file(COPY media DESTINATION ${CMAKE_BINARY_DIR})
-
 # icon for Windows
 if(WIN32)
 	set(RESOURCE_FILE media/icon/resources.rc)
 endif()
+
+add_executable(P88l src/main.cpp src/Ball.cpp src/FPSCounter.cpp src/Game.cpp src/Menu.cpp src/Pockets.cpp src/Table.cpp src/Trajectory.cpp src/UI.cpp ${RESOURCE_FILE})
+target_compile_features(P88l PRIVATE cxx_std_20)
+target_link_libraries(P88l PRIVATE sfml-graphics sfml-audio sfml-system sfml-window)
+
+file(COPY media DESTINATION ${CMAKE_BINARY_DIR})
 
 # don't open a console window on Windows
 if(WIN32)
