@@ -2,6 +2,7 @@
 #include "Spec.hpp"
 #include <cmath>
 #include <numbers>
+#include <cassert>
 
 namespace
 {
@@ -15,7 +16,7 @@ namespace
     constexpr float CUE_POS_Y_MIN               = Spec::TABLE_TOP + 0.3f * Spec::TABLE_HEIGHT;
     constexpr float CUE_POS_Y_MAX               = Spec::TABLE_TOP + 0.7f * Spec::TABLE_HEIGHT;
     // replacement
-    constexpr size_t NUM_REPLACEMENT_POSITIONS  = 16;
+    constexpr int NUM_REPLACEMENT_POSITIONS  = 16;
     const std::array<sf::Vector2f, NUM_REPLACEMENT_POSITIONS> REPLACEMENT_POSITIONS{{
         {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
         {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
@@ -45,13 +46,13 @@ Game::Game(const char* path) :
     m_state{InMenu}
 {
     // loading from files
-    m_bufferCue.loadFromFile(m_path / Spec::PATH_TO_CUE_SOUND);
-    m_bufferCollision.loadFromFile(m_path / Spec::PATH_TO_COLLISION_SOUND);
-    m_bufferPotting.loadFromFile(m_path / Spec::PATH_TO_POTTING_SOUND);
-    m_font.loadFromFile(m_path / Spec::PATH_TO_FONT);
-    m_textureEightball.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
+    m_bufferCue.loadFromFile((m_path / Spec::PATH_TO_CUE_SOUND).string());
+    m_bufferCollision.loadFromFile((m_path / Spec::PATH_TO_COLLISION_SOUND).string());
+    m_bufferPotting.loadFromFile((m_path / Spec::PATH_TO_POTTING_SOUND).string());
+    m_font.loadFromFile((m_path / Spec::PATH_TO_FONT).string());
+    m_textureEightball.loadFromFile((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string());
     m_textureEightball.setSmooth(true);
-    m_menuInfo.loadFromFile(m_path / Spec::PATH_TO_MENU_INFO);
+    m_menuInfo.loadFromFile((m_path / Spec::PATH_TO_MENU_INFO).string());
     // setting font (and texture)
     m_fpsCounter.setFont(m_font);
     m_ui.setFont(m_font);
@@ -69,7 +70,7 @@ Game::Game(const char* path) :
     m_window.setFramerateLimit(200);
     {
         sf::Image icon;
-        icon.loadFromFile(m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE);
+        icon.loadFromFile((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string());
         m_window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     }
     // reserve space for all balls
@@ -398,9 +399,10 @@ void Game::nextTurn()
     if (m_balls[CUE_INDEX].isPotted() && m_balls[EIGHTBALL_INDEX].isPotted())
     {
         switchPlayer(); // bc the other one wins
-        m_menu.setMessage(sf::String{getActivePlayerName()} + "won by fatal foul!", 
+        m_menu.setMessage(sf::String{getActivePlayerName()} + " won by fatal foul!", 
                         m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
         m_state = InMenu;
+        return;
     }
     // if cue ball is potted, replace it
     else if (m_balls[CUE_INDEX].isPotted())
@@ -473,13 +475,14 @@ void Game::launchCueBall(const sf::Vector2f& mousePos)
 // replace the given ball (usually, cue or eight-ball) at a random position from the list; keep trying a new position until valid (garanteed)
 void Game::replaceBall(Ball& ball)
 {
-    std::uniform_int_distribution distrib(0, static_cast<int>(NUM_REPLACEMENT_POSITIONS - 1));
+    std::uniform_int_distribution distrib{0, NUM_REPLACEMENT_POSITIONS - 1};
     
-    int index;
+    int index = 0;
     do {
         index = distrib(*m_rng);
     } while(!canPlaceBall(REPLACEMENT_POSITIONS[index]));
 
+    assert(index >= 0 && index < NUM_REPLACEMENT_POSITIONS); // to evade the warning in Visual Studio at the next line
     ball.replace(REPLACEMENT_POSITIONS[index]);
 }
 
