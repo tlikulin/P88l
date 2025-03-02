@@ -27,6 +27,11 @@ target_link_libraries(P88l PRIVATE sfml-graphics sfml-audio sfml-system sfml-win
 
 file(COPY media DESTINATION ${CMAKE_BINARY_DIR})
 
+# icon for Windows
+if(WIN32)
+	set(RESOURCE_FILE media/icon/resources.rc)
+endif()
+
 # don't open a console window on Windows
 if(WIN32)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
