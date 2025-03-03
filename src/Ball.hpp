@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <cstdint>
 
 // A single ball of a type with physics, display, and collision sound.
 class Ball

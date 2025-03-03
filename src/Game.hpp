@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <random>
 #include <memory>
+#include <cstdint>
 #include "Ball.hpp"
 #include "Trajectory.hpp"
 #include "Table.hpp"
