@@ -13,17 +13,17 @@ You can download them with the following command.
 For apt:
 
 ```bash
-sudo apt install libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev \ 
-                 libgl1-mesa-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev \
-                 libfreetype6-dev libudev-dev
+sudo apt install libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+sudo apt install libgl1-mesa-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev
+sudo apt install libfreetype6-dev libudev-dev
 ```
 
 For dnf:
 
 ```bash
 sudo dnf install libX11-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel \
-                 mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
-                 freetype-devel systemd-devel
+sudo dnf install mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
+sudo dnf install freetype-devel systemd-devel
 ```
 
 ## Building
