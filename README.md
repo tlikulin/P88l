@@ -14,16 +14,16 @@ For apt:
 
 ```bash
 sudo apt install libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev \ 
-                  libgl1-mesa-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev \
-                  libfreetype6-dev libudev-dev
+                 libgl1-mesa-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev \
+                 libfreetype6-dev libudev-dev
 ```
 
 For dnf:
 
 ```bash
 sudo dnf install libX11-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel \
-                  mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
-                  freetype-devel systemd-devel
+                 mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
+                 freetype-devel systemd-devel
 ```
 
 ## Building
