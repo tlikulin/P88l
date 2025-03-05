@@ -6,17 +6,17 @@
 
 namespace
 {
-    // fixed incdices
+    // fixed indices
     constexpr size_t CUE_INDEX                  = 0;
     constexpr size_t EIGHTBALL_INDEX            = 11;
-    // inital ball postions
+    // initial ball positions
     const sf::Vector2f BALL_SPACING             {std::numbers::sqrt3_v<float> * Spec::BALL_RADIUS, Spec::BALL_RADIUS};
     const sf::Vector2f BALL_TOPLEFT_POS         {Spec::TABLE_LEFT + 0.25f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.5f * Spec::TABLE_HEIGHT - 4.0f * Spec::BALL_RADIUS};
     constexpr float CUE_POS_X                   = Spec::TABLE_LEFT + 0.75f * Spec::TABLE_WIDTH;
     constexpr float CUE_POS_Y_MIN               = Spec::TABLE_TOP + 0.3f * Spec::TABLE_HEIGHT;
     constexpr float CUE_POS_Y_MAX               = Spec::TABLE_TOP + 0.7f * Spec::TABLE_HEIGHT;
     // replacement
-    constexpr int NUM_REPLACEMENT_POSITIONS  = 16;
+    constexpr int NUM_REPLACEMENT_POSITIONS 	= 16;
     const std::array<sf::Vector2f, NUM_REPLACEMENT_POSITIONS> REPLACEMENT_POSITIONS{{
         {Spec::TABLE_LEFT + 0.2f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
         {Spec::TABLE_LEFT + 0.4f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.2f * Spec::TABLE_HEIGHT},
@@ -37,7 +37,8 @@ namespace
     }};
     // misc
     const sf::Color BG_COLOR                    {0xb8b8b8ff};
-    constexpr float botAimingTime               = 1.5f;
+    constexpr float BOT_AIMING_TIME             = 1.5f;
+    constexpr float DELTATIME_THRESHOLD 	= 1.0f / 10.0f;
 }
 
 Game::Game(const char* path) :
@@ -143,6 +144,11 @@ void Game::initializeBalls()
 void Game::gameLoop()
 {
     m_deltaTime = m_clock.restart().asSeconds();
+    // suposedly stops updating while the window is moved on Windows 
+    if (m_deltaTime > DELTATIME_THRESHOLD)
+    {
+	return;
+    }
 
     sf::Event event;
     while (m_window.pollEvent(event))
@@ -210,7 +216,7 @@ void Game::update()
     // simulate gradual change in trajectory while the bot is aiming
     case BotAiming:
         m_botAimingProgress += m_deltaTime;
-        if (m_botAimingProgress >= botAimingTime)
+        if (m_botAimingProgress >= BOT_AIMING_TIME)
         {
             m_botAimingProgress = 0.0f;
             launchCueBall(m_botMousePos);
@@ -218,7 +224,7 @@ void Game::update()
         }
         else
         {
-            m_botMousePos += m_botMouseShift * m_deltaTime / botAimingTime;
+            m_botMousePos += m_botMouseShift * m_deltaTime / BOT_AIMING_TIME;
             m_trajectory.update(m_balls[CUE_INDEX].getPosition(), m_botMousePos);
         }
         break;
