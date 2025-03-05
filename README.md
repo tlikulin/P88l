@@ -1,14 +1,14 @@
 # P88l
-A simple version of eight-ball written in C++ using SFML 2.5.1 for graphics and audio and cmake as the bulding system.
+A simple version of eight-ball written in C++ using SFML 2.5.1 for graphics and audio and cmake as the bulding system.    
+![Screenshot from menu](/media/screenshots/screenshot_menu.png)    
+![Screenshot from game](/media/screenshots/screenshot_game.png)
 
 ## Prerequisites
 You need to have `git`, `cmake`, and a C++ compiler (e.g., g++ or MSVC from Visual Studio) installed on your machine.
 ### Extra dependencies (Linux only)
-You need to download SFML version 2.5 from your package manager.
-
-If you cannot do so, the library will be fetched and built from source, but it depends on some development libraries.
-
-You can download them with the following command.
+You need to download SFML version 2.5 from your package manager.    
+If you cannot do so, the library will be fetched and built from source, but it depends on some development libraries.    
+You can download them with the following commands.
 
 For apt:
 
@@ -28,17 +28,18 @@ sudo dnf install freetype-devel systemd-devel
 
 ## Building
 Open a terminal (or command prompt) and enter the following commands:
-- clone the repository;
-  
-  `git clone https://github.com/tlikulin/P88l && cd P88l`
+1. clone the repository;
+   ```bash
+   git clone https://github.com/tlikulin/P88l && cd P88l
+   ```
 
-- build the project with cmake;
+2. build the project with cmake;
+   ```bash
+   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+   cmake --build build --config Release
+   ```
 
-  `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
-
-  `cmake --build build --config Release`
-
-- the executable will be in build/bin.
+3. the executable will be in **build/bin**.
 
 Tested on Windows Pro 10 64-bit (Visual Studio 2022), Fedora Workstation 41 (g++), and Ubuntu 24.04.2 LTS (g++). 
 
