@@ -46,14 +46,14 @@ Tested on Windows Pro 10 64-bit (Visual Studio 2022), Fedora Workstation 41 (g++
 
 ## How to play
 - You start in the menu where you need to choose the mode: "2 Players" (both controlled manually) or "Against Bot" (one is controlled by the computer). There is also a ??? button...
-- While playing, the score for each player and the current state are displayed.
+- While playing, the scores and the current state are displayed.
 - The goal is to pot all balls of your color, followed by the eight-ball.
     - If you have potted balls of your color only during a turn, you get an extra turn.
     - Potted cue ball and eight-ball are replaced at a random position. However, should you pot both in one turn, you lose (foul).
-- When it's your turn drag at the cue ball to aim. A trajectory preview will be displayed (does not take into account collisions with other balls but can calculate reflections).
-    - The can control the power, which is shown by the trajectory, although not precisely. If you reach the maximum power, it turns red.
+- When it's your turn, drag at the cue ball to aim. A trajectory preview will be displayed (does not take into account collisions with other balls but can calculate reflections).
+    - You can control the power, which is shown by the trajectory, although not precisely. If you reach the maximum power, it turns red.
     - If you don't have enough space, you can release the mouse at the cue ball (your turn will not be wasted) and move the window.
-- The game finishes once a player who have potted all balls of their color pots the eight-ball, you are brought back to the menu and the game result is displayed.
+- The game finishes once a player who have potted all balls of their color pots the eight-ball. You are brought back to the menu, and the game result is displayed.
 - Extra controls:
     - **P** to cycle through the trajectory modes (including invisible).
     - **~** to turn on/off the fps counter (locked at 200 for consistency).
