@@ -21,8 +21,8 @@ sudo apt install libfreetype6-dev libudev-dev
 For dnf:
 
 ```bash
-sudo dnf install libX11-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel \
-sudo dnf install mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
+sudo dnf install libX11-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel
+sudo dnf install mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel
 sudo dnf install freetype-devel systemd-devel
 ```
 
