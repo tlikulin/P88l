@@ -13,13 +13,17 @@ You can download them with the following command.
 For apt:
 
 `sudo apt install libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev \
+
                   libgl1-mesa-dev libopenal-dev libvorbis-dev libogg-dev libflac-dev \
+
                   libfreetype6-dev libudev-dev`
 
 For dnf:
 
 `sudo dnf install libX11-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel \
+
                   mesa-libGL-devel openal-soft-devel libvorbis-devel libogg-devel flac-devel \
+                  
                   freetype-devel systemd-devel`
 
 ## Building
@@ -33,7 +37,7 @@ Open a terminal (or command prompt) and enter the following commands:
   `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
 
   `cmake --build build --config Release`
-  
+
 - the executable will be in build/bin.
 
 Tested on Windows Pro 10 64-bit (Visual Studio 2022), Fedora Workstation 41 (g++), and Ubuntu 24.04.2 LTS (g++). 
