@@ -38,7 +38,7 @@ namespace
     // misc
     const sf::Color BG_COLOR                    {0xb8b8b8ff};
     constexpr float BOT_AIMING_TIME             = 1.5f;
-    constexpr float DELTATIME_THRESHOLD 	= 1.0f / 10.0f;
+    constexpr float DELTATIME_THRESHOLD 		= 1.0f / 10.0f;
 }
 
 Game::Game(const char* path) :
@@ -144,16 +144,17 @@ void Game::initializeBalls()
 void Game::gameLoop()
 {
     m_deltaTime = m_clock.restart().asSeconds();
-    // suposedly stops updating while the window is moved on Windows 
-    if (m_deltaTime > DELTATIME_THRESHOLD)
-    {
-	return;
-    }
 
     sf::Event event;
     while (m_window.pollEvent(event))
     {
         handleEvent(event);
+    }
+	
+	// stops updating while the window is moved on Windows 
+    if (m_deltaTime > DELTATIME_THRESHOLD)
+    {
+		return;
     }
     
     update();

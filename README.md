@@ -59,5 +59,7 @@ Tested on Windows Pro 10 64-bit (Visual Studio 2022), Fedora Workstation 41 (g++
     - **~** to turn on/off the fps counter (locked at 200 for consistency).
     - **Shift+Esc** to abandon the current game and go to the menu.
 
+PS You might want to temporarily set scaling on your screen to 100% for better experience (e.g., System>Display>Scale and Layout>"Change the size of text, apps, and other items" on Windows 10).
+
 ## Credits
 This project uses the MesloLGS NF font, which is based on Meslo LG (licensed under Apache License 2.0) and includes modifications from the Nerd Fonts project.
