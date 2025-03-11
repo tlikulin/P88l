@@ -24,7 +24,8 @@ Ball::Ball(sf::Vector2f position, BallType type, const sf::Texture* texture, con
     m_body.setRadius(Spec::BALL_RADIUS);
     m_body.setOrigin(Spec::BALL_RADIUS, Spec::BALL_RADIUS);
     m_body.setPosition(position);
-    if (texture)
+    // set a texture if it's not null and not empty (default-constructed)
+    if (texture && texture->getSize() != sf::Vector2u{0u, 0u})
     {
         m_body.setTexture(texture);
     }

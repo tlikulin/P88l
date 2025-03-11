@@ -15,12 +15,13 @@ namespace Spec
     inline const std::filesystem::path AUDIO_DIR                    = MEDIA_DIR / "audio";
     inline const std::filesystem::path FONTS_DIR                    = MEDIA_DIR / "fonts";
     inline const std::filesystem::path IMAGES_DIR                   = MEDIA_DIR / "images";
-    inline const std::filesystem::path PATH_TO_CUE_SOUND            = AUDIO_DIR / "cue_strike.wav";
-    inline const std::filesystem::path PATH_TO_COLLISION_SOUND      = AUDIO_DIR / "ball_collision.wav";
-    inline const std::filesystem::path PATH_TO_POTTING_SOUND        = AUDIO_DIR / "potting.wav";
-    inline const std::filesystem::path PATH_TO_FONT                 = FONTS_DIR / "MesloLGS NF Regular.ttf";
+    inline const std::filesystem::path PATH_TO_CUE_SOUND            = AUDIO_DIR  / "cue_strike.wav";
+    inline const std::filesystem::path PATH_TO_COLLISION_SOUND      = AUDIO_DIR  / "ball_collision.wav";
+    inline const std::filesystem::path PATH_TO_POTTING_SOUND        = AUDIO_DIR  / "potting.wav";
+    inline const std::filesystem::path PATH_TO_FONT                 = FONTS_DIR  / "MesloLGS NF Regular.ttf";
     inline const std::filesystem::path PATH_TO_EIGHTBALL_TEXTURE    = IMAGES_DIR / "eightball.png";
     inline const std::filesystem::path PATH_TO_MENU_INFO            = IMAGES_DIR / "menu_info.png";
+    inline const std::filesystem::path PATH_TO_WINDOW_ICON          = IMAGES_DIR / "window_icon.png";
     
     //Table
     inline constexpr float TABLE_TOP            = 150.0f;

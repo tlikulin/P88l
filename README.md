@@ -1,5 +1,5 @@
 # P88l
-A simple version of eight-ball written in C++ using SFML 2.5.1 for graphics and audio and cmake as the bulding system.
+A simple version of eight-ball written in C++ using SFML 2.5.1 for graphics and audio and cmake as the building system.
 
 ![Screenshot from menu](/media/screenshots/screenshot_menu.png)    
 ![Screenshot from game](/media/screenshots/screenshot_game.png)

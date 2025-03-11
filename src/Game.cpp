@@ -10,7 +10,7 @@ namespace
     constexpr size_t CUE_INDEX                  = 0;
     constexpr size_t EIGHTBALL_INDEX            = 11;
     // initial ball positions
-    const sf::Vector2f BALL_SPACING             {std::numbers::sqrt3_v<float> * Spec::BALL_RADIUS, Spec::BALL_RADIUS};
+    const sf::Vector2f BALL_SPACING             {std::numbers::sqrt3_v<float> * 1.025f * Spec::BALL_RADIUS, 1.025f * Spec::BALL_RADIUS};
     const sf::Vector2f BALL_TOPLEFT_POS         {Spec::TABLE_LEFT + 0.25f * Spec::TABLE_WIDTH, Spec::TABLE_TOP + 0.5f * Spec::TABLE_HEIGHT - 4.0f * Spec::BALL_RADIUS};
     constexpr float CUE_POS_X                   = Spec::TABLE_LEFT + 0.75f * Spec::TABLE_WIDTH;
     constexpr float CUE_POS_Y_MIN               = Spec::TABLE_TOP + 0.3f * Spec::TABLE_HEIGHT;
@@ -51,8 +51,11 @@ Game::Game(const char* path) :
     m_bufferCollision.loadFromFile((m_path / Spec::PATH_TO_COLLISION_SOUND).string());
     m_bufferPotting.loadFromFile((m_path / Spec::PATH_TO_POTTING_SOUND).string());
     m_font.loadFromFile((m_path / Spec::PATH_TO_FONT).string());
-    m_textureEightball.loadFromFile((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string());
-    m_textureEightball.setSmooth(true);
+    if (std::filesystem::exists((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string()))
+    {
+        m_textureEightball.loadFromFile((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string());
+        m_textureEightball.setSmooth(true);
+    }
     m_menuInfo.loadFromFile((m_path / Spec::PATH_TO_MENU_INFO).string());
     // setting font (and texture)
     m_fpsCounter.setFont(m_font);
@@ -71,7 +74,7 @@ Game::Game(const char* path) :
     m_window.setFramerateLimit(200);
     {
         sf::Image icon;
-        icon.loadFromFile((m_path / Spec::PATH_TO_EIGHTBALL_TEXTURE).string());
+        icon.loadFromFile((m_path / Spec::PATH_TO_WINDOW_ICON).string());
         m_window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     }
     // reserve space for all balls
@@ -126,7 +129,7 @@ void Game::initializeBalls()
             }
         }
 
-        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.0f * Spec::BALL_RADIUS * currIndex}, type, 
+        m_balls.emplace_back(pos + sf::Vector2f{0.0f, 2.05f * Spec::BALL_RADIUS * currIndex}, type, 
                              m_isMysteryEnabled || type == Ball::Eightball ? &m_textureEightball : nullptr, m_bufferCollision);
 
         currIndex++;
@@ -184,7 +187,7 @@ void Game::update()
                         m_wasP2BallPotted = true;
                     }
 
-                    if(m_ui.update(ball))
+                    if (m_ui.update(ball))
                     {
                         m_menu.setMessage(sf::String{getActivePlayerName()} + " won by potting!",
                                             m_activePlayer == 1 ? Spec::PLAYER1_COLOR : Spec::PLAYER2_COLOR);
